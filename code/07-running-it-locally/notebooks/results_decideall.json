@@ -1,0 +1,490 @@
+{
+  "notebook": "02_decideall_tests",
+  "saved_at": "2026-10-08T22:18:46",
+  "results": [
+    {
+      "test": "procedure jev.decideAll is registered",
+      "status": "PASS",
+      "detail": "jev.decideAll"
+    },
+    {
+      "test": "order: one row per item",
+      "status": "PASS",
+      "detail": "20 rows"
+    },
+    {
+      "test": "order: ids come back in input order",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "order: every row reports the connection error",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "order: no row carries the key",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "concurrency 0 is rejected on every row",
+      "status": "PASS",
+      "detail": "validation: concurrency must be between 1 and 16"
+    },
+    {
+      "test": "concurrency 17 is rejected on every row",
+      "status": "PASS",
+      "detail": "validation: concurrency must be between 1 and 16"
+    },
+    {
+      "test": "concurrency 'two' is rejected on every row",
+      "status": "PASS",
+      "detail": "validation: concurrency must be a whole number"
+    },
+    {
+      "test": "concurrency 2.5 is rejected on every row",
+      "status": "PASS",
+      "detail": "validation: concurrency must be a whole number"
+    },
+    {
+      "test": "per-row: a missing state fails only that row",
+      "status": "PASS",
+      "detail": "validation: item 0 needs a state"
+    },
+    {
+      "test": "per-row: the next item still ran",
+      "status": "PASS",
+      "detail": "io: ConnectException reaching 127.0.0.1:9 (after 1 attempt)"
+    },
+    {
+      "test": "ids: a missing id falls back to the position",
+      "status": "PASS",
+      "detail": "[0, 1]"
+    },
+    {
+      "test": "null item: reported as a row error",
+      "status": "PASS",
+      "detail": "3 rows"
+    },
+    {
+      "test": "limit: 10001 items are rejected, and the message says why",
+      "status": "PASS",
+      "detail": "Failed to invoke procedure `jev.decideAll`: Caused by: java.lang.IllegalArgumentException: a batch holds at most 10000 i"
+    },
+    {
+      "test": "limit: an empty list gives no rows",
+      "status": "PASS",
+      "detail": "0 rows"
+    },
+    {
+      "test": "options: an unknown name is reported on every row",
+      "status": "PASS",
+      "detail": "validation: unknown option(s): modle; known options are [connect_timeout_ms, max_retries, model, request_timeout_ms, url]"
+    },
+    {
+      "test": "Ollama is running",
+      "status": "PASS",
+      "detail": "http://localhost:11434/"
+    },
+    {
+      "test": "model tev1:0.8b is pulled",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "batch: ids in input order",
+      "status": "PASS",
+      "detail": "['atm', 'coffee', 'jewelry', 'no_state']"
+    },
+    {
+      "test": "batch: the three real items have no error",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "batch: the choices are ones we offered",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "batch: the key was not sent",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "batch: the item with no state fails alone",
+      "status": "PASS",
+      "detail": "validation: item 3 needs a state"
+    },
+    {
+      "test": "batch: choices",
+      "status": "INFO",
+      "detail": "atm=Pass, coffee=Pass, jewelry=Pass"
+    },
+    {
+      "test": "batch: the row for 'atm' equals the single call",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "batch: an unknown model gives a client error on every row",
+      "status": "PASS",
+      "detail": "http_4xx: 404 {\"error\":\"model \\\"does-not-exist\\\" not found, try pulling it first\"}"
+    },
+    {
+      "test": "batch: client errors are not retried",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "sweep: every run returned all its rows",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "sweep: ids stayed in order at every level",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "sweep: no errors at any level",
+      "status": "PASS",
+      "detail": "0 errors"
+    },
+    {
+      "test": "sweep: median wall time (ms) at each level",
+      "status": "INFO",
+      "detail": "1: 516, 2: 238, 4: 185, 8: 260, 16: 296"
+    },
+    {
+      "test": "sweep: speedup at each level",
+      "status": "INFO",
+      "detail": "1: 1.0x, 2: 2.17x, 4: 2.79x, 8: 1.98x, 16: 1.74x"
+    },
+    {
+      "test": "sweep: paired speedup at each level",
+      "status": "INFO",
+      "detail": "1: 1.0x, 2: 1.6x, 4: 2.76x, 8: 2.05x, 16: 1.66x"
+    },
+    {
+      "test": "sweep: spread (slowest repeat / fastest) at each level",
+      "status": "INFO",
+      "detail": "1: 1.86, 2: 2.2, 4: 2.08, 8: 2.21, 16: 2.09"
+    },
+    {
+      "test": "real Jev",
+      "status": "SKIPPED",
+      "detail": "RUN_REAL_JEV is False"
+    },
+    {
+      "test": "Ollama stopped",
+      "status": "SKIPPED",
+      "detail": "Ollama is still running. Quit it, then run this cell again."
+    }
+  ],
+  "timings": {
+    "local_sweep": [
+      {
+        "concurrency": 1,
+        "repeat": 0,
+        "wall_ms": 326.1998340021819,
+        "errors": 0
+      },
+      {
+        "concurrency": 2,
+        "repeat": 0,
+        "wall_ms": 209.74862499861047,
+        "errors": 0
+      },
+      {
+        "concurrency": 4,
+        "repeat": 0,
+        "wall_ms": 330.8275409945054,
+        "errors": 0
+      },
+      {
+        "concurrency": 8,
+        "repeat": 0,
+        "wall_ms": 164.105041003495,
+        "errors": 0
+      },
+      {
+        "concurrency": 16,
+        "repeat": 0,
+        "wall_ms": 198.16350000473903,
+        "errors": 0
+      },
+      {
+        "concurrency": 1,
+        "repeat": 1,
+        "wall_ms": 435.4909169996972,
+        "errors": 0
+      },
+      {
+        "concurrency": 2,
+        "repeat": 1,
+        "wall_ms": 266.0462909989292,
+        "errors": 0
+      },
+      {
+        "concurrency": 4,
+        "repeat": 1,
+        "wall_ms": 167.35529199650045,
+        "errors": 0
+      },
+      {
+        "concurrency": 8,
+        "repeat": 1,
+        "wall_ms": 172.57033299392788,
+        "errors": 0
+      },
+      {
+        "concurrency": 16,
+        "repeat": 1,
+        "wall_ms": 240.01441700238502,
+        "errors": 0
+      },
+      {
+        "concurrency": 1,
+        "repeat": 2,
+        "wall_ms": 406.8579580052756,
+        "errors": 0
+      },
+      {
+        "concurrency": 2,
+        "repeat": 2,
+        "wall_ms": 350.2700419994653,
+        "errors": 0
+      },
+      {
+        "concurrency": 4,
+        "repeat": 2,
+        "wall_ms": 346.085666998988,
+        "errors": 0
+      },
+      {
+        "concurrency": 8,
+        "repeat": 2,
+        "wall_ms": 362.54062500665896,
+        "errors": 0
+      },
+      {
+        "concurrency": 16,
+        "repeat": 2,
+        "wall_ms": 367.2844999964582,
+        "errors": 0
+      },
+      {
+        "concurrency": 1,
+        "repeat": 3,
+        "wall_ms": 529.5048339976347,
+        "errors": 0
+      },
+      {
+        "concurrency": 2,
+        "repeat": 3,
+        "wall_ms": 172.41099999955622,
+        "errors": 0
+      },
+      {
+        "concurrency": 4,
+        "repeat": 3,
+        "wall_ms": 180.93025000416674,
+        "errors": 0
+      },
+      {
+        "concurrency": 8,
+        "repeat": 3,
+        "wall_ms": 250.20100000256207,
+        "errors": 0
+      },
+      {
+        "concurrency": 16,
+        "repeat": 3,
+        "wall_ms": 345.7865829986986,
+        "errors": 0
+      },
+      {
+        "concurrency": 1,
+        "repeat": 4,
+        "wall_ms": 525.682333005534,
+        "errors": 0
+      },
+      {
+        "concurrency": 2,
+        "repeat": 4,
+        "wall_ms": 363.35733300074935,
+        "errors": 0
+      },
+      {
+        "concurrency": 4,
+        "repeat": 4,
+        "wall_ms": 345.72470800048904,
+        "errors": 0
+      },
+      {
+        "concurrency": 8,
+        "repeat": 4,
+        "wall_ms": 170.2369999984512,
+        "errors": 0
+      },
+      {
+        "concurrency": 16,
+        "repeat": 4,
+        "wall_ms": 186.79854199581314,
+        "errors": 0
+      },
+      {
+        "concurrency": 1,
+        "repeat": 5,
+        "wall_ms": 515.6159580001258,
+        "errors": 0
+      },
+      {
+        "concurrency": 2,
+        "repeat": 5,
+        "wall_ms": 353.19675000209827,
+        "errors": 0
+      },
+      {
+        "concurrency": 4,
+        "repeat": 5,
+        "wall_ms": 174.19375000463333,
+        "errors": 0
+      },
+      {
+        "concurrency": 8,
+        "repeat": 5,
+        "wall_ms": 175.0018340026145,
+        "errors": 0
+      },
+      {
+        "concurrency": 16,
+        "repeat": 5,
+        "wall_ms": 245.4929590021493,
+        "errors": 0
+      },
+      {
+        "concurrency": 1,
+        "repeat": 6,
+        "wall_ms": 591.7369579983642,
+        "errors": 0
+      },
+      {
+        "concurrency": 2,
+        "repeat": 6,
+        "wall_ms": 180.949249996047,
+        "errors": 0
+      },
+      {
+        "concurrency": 4,
+        "repeat": 6,
+        "wall_ms": 183.8894579996122,
+        "errors": 0
+      },
+      {
+        "concurrency": 8,
+        "repeat": 6,
+        "wall_ms": 302.26629199751187,
+        "errors": 0
+      },
+      {
+        "concurrency": 16,
+        "repeat": 6,
+        "wall_ms": 353.93291599757504,
+        "errors": 0
+      },
+      {
+        "concurrency": 1,
+        "repeat": 7,
+        "wall_ms": 515.4947909977636,
+        "errors": 0
+      },
+      {
+        "concurrency": 2,
+        "repeat": 7,
+        "wall_ms": 164.8329159943387,
+        "errors": 0
+      },
+      {
+        "concurrency": 4,
+        "repeat": 7,
+        "wall_ms": 175.2725830010604,
+        "errors": 0
+      },
+      {
+        "concurrency": 8,
+        "repeat": 7,
+        "wall_ms": 269.04745800129604,
+        "errors": 0
+      },
+      {
+        "concurrency": 16,
+        "repeat": 7,
+        "wall_ms": 356.6193330043461,
+        "errors": 0
+      },
+      {
+        "concurrency": 1,
+        "repeat": 8,
+        "wall_ms": 605.261957993207,
+        "errors": 0
+      },
+      {
+        "concurrency": 2,
+        "repeat": 8,
+        "wall_ms": 189.67445800080895,
+        "errors": 0
+      },
+      {
+        "concurrency": 4,
+        "repeat": 8,
+        "wall_ms": 187.0364589995006,
+        "errors": 0
+      },
+      {
+        "concurrency": 8,
+        "repeat": 8,
+        "wall_ms": 273.7344999986817,
+        "errors": 0
+      },
+      {
+        "concurrency": 16,
+        "repeat": 8,
+        "wall_ms": 175.85354099719552,
+        "errors": 0
+      },
+      {
+        "concurrency": 1,
+        "repeat": 9,
+        "wall_ms": 451.0928329982562,
+        "errors": 0
+      },
+      {
+        "concurrency": 2,
+        "repeat": 9,
+        "wall_ms": 348.87679100211244,
+        "errors": 0
+      },
+      {
+        "concurrency": 4,
+        "repeat": 9,
+        "wall_ms": 347.3718329987605,
+        "errors": 0
+      },
+      {
+        "concurrency": 8,
+        "repeat": 9,
+        "wall_ms": 349.2194999998901,
+        "errors": 0
+      },
+      {
+        "concurrency": 16,
+        "repeat": 9,
+        "wall_ms": 359.23445799562614,
+        "errors": 0
+      }
+    ]
+  }
+}

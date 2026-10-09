@@ -1,0 +1,18 @@
+# Build output
+target/
+
+# Maven Shade plugin generated file
+dependency-reduced-pom.xml
+
+# Maven compiled classes
+*.class
+
+# macOS system files
+.DS_Store
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# VS Code
+.vscode/

@@ -1,0 +1,122 @@
+{
+  "notebook": "01_decide_tests",
+  "saved_at": "2026-10-08T21:43:12",
+  "results": [
+    {
+      "test": "function jev.decide is registered",
+      "status": "PASS",
+      "detail": "jev.decide"
+    },
+    {
+      "test": "validation: choice criteria as an array",
+      "status": "PASS",
+      "detail": "validation: d: a choice question needs criteria as a map of label to description, not an array"
+    },
+    {
+      "test": "validation: no call was made",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "validation: answers are null",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "validation: unknown option name",
+      "status": "PASS",
+      "detail": "validation: unknown option(s): modle; known options are [connect_timeout_ms, max_retries, model, request_timeout_ms, url]"
+    },
+    {
+      "test": "validation: blank state",
+      "status": "PASS",
+      "detail": "validation: state must not be blank"
+    },
+    {
+      "test": "validation: score criteria as a map",
+      "status": "PASS",
+      "detail": "validation: s: a score question needs criteria as an ordered array of level descriptions, not a map"
+    },
+    {
+      "test": "validation: retries out of range",
+      "status": "PASS",
+      "detail": "validation: max_retries must be between 0 and 5"
+    },
+    {
+      "test": "validation: missing instructions",
+      "status": "PASS",
+      "detail": "validation: d: instructions are required"
+    },
+    {
+      "test": "validation: url that is not http",
+      "status": "PASS",
+      "detail": "validation: url must be an http or https URL with a host"
+    },
+    {
+      "test": "validation: no questions at all",
+      "status": "PASS",
+      "detail": "validation: questions must be a non-empty map"
+    },
+    {
+      "test": "closed port: error names the host and port",
+      "status": "PASS",
+      "detail": "io: ConnectException reaching 127.0.0.1:9 (after 1 attempt)"
+    },
+    {
+      "test": "closed port: one attempt without retries",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "closed port: the key was not sent",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "closed port: three attempts with default retries",
+      "status": "PASS",
+      "detail": "io: ConnectException reaching 127.0.0.1:9 (after 3 attempts)"
+    },
+    {
+      "test": "closed port: backoff waits happened (0.5 s + 1 s)",
+      "status": "PASS",
+      "detail": "1516 ms"
+    },
+    {
+      "test": "key rule: not sent to a look-alike (suffix on the real name)",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "key rule: no key was needed (suffix on the real name)",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "key rule: error text (suffix on the real name)",
+      "status": "INFO",
+      "detail": "io: ConnectException reaching api.typesafe.ai.invalid (after 1 attempt)"
+    },
+    {
+      "test": "key rule: not sent to a look-alike (real name as a user name)",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "key rule: no key was needed (real name as a user name)",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "key rule: error text (real name as a user name)",
+      "status": "INFO",
+      "detail": "io: ConnectException reaching lookalike.invalid (after 1 attempt)"
+    },
+    {
+      "test": "real Jev",
+      "status": "SKIPPED",
+      "detail": "RUN_REAL_JEV is False"
+    }
+  ],
+  "timings": {}
+}

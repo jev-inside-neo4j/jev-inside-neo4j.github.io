@@ -1,0 +1,168 @@
+{
+  "notebook": "02_decideall_tests",
+  "saved_at": "2026-10-08T21:45:30",
+  "results": [
+    {
+      "test": "procedure jev.decideAll is registered",
+      "status": "PASS",
+      "detail": "jev.decideAll"
+    },
+    {
+      "test": "order: one row per item",
+      "status": "PASS",
+      "detail": "20 rows"
+    },
+    {
+      "test": "order: ids come back in input order",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "order: every row reports the connection error",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "order: no row carries the key",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "concurrency 0 is rejected on every row",
+      "status": "PASS",
+      "detail": "validation: concurrency must be between 1 and 16"
+    },
+    {
+      "test": "concurrency 17 is rejected on every row",
+      "status": "PASS",
+      "detail": "validation: concurrency must be between 1 and 16"
+    },
+    {
+      "test": "concurrency 'two' is rejected on every row",
+      "status": "PASS",
+      "detail": "validation: concurrency must be a whole number"
+    },
+    {
+      "test": "concurrency 2.5 is rejected on every row",
+      "status": "PASS",
+      "detail": "validation: concurrency must be a whole number"
+    },
+    {
+      "test": "per-row: a missing state fails only that row",
+      "status": "PASS",
+      "detail": "validation: item 0 needs a state"
+    },
+    {
+      "test": "per-row: the next item still ran",
+      "status": "PASS",
+      "detail": "io: ConnectException reaching 127.0.0.1:9 (after 1 attempt)"
+    },
+    {
+      "test": "ids: a missing id falls back to the position",
+      "status": "PASS",
+      "detail": "[0, 1]"
+    },
+    {
+      "test": "null item: reported as a row error",
+      "status": "PASS",
+      "detail": "3 rows"
+    },
+    {
+      "test": "limit: 10001 items are rejected, and the message says why",
+      "status": "PASS",
+      "detail": "Failed to invoke procedure `jev.decideAll`: Caused by: java.lang.IllegalArgumentException: a batch holds at most 10000 i"
+    },
+    {
+      "test": "limit: an empty list gives no rows",
+      "status": "PASS",
+      "detail": "0 rows"
+    },
+    {
+      "test": "options: an unknown name is reported on every row",
+      "status": "PASS",
+      "detail": "validation: unknown option(s): modle; known options are [connect_timeout_ms, max_retries, model, request_timeout_ms, url]"
+    },
+    {
+      "test": "real Jev: no row errors",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "real Jev: the key was sent on every row",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "real Jev: ids come back in order",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "real Jev sweep: no errors",
+      "status": "PASS",
+      "detail": "0 errors"
+    },
+    {
+      "test": "real Jev sweep: speedup at each level",
+      "status": "INFO",
+      "detail": "1: 1.0x, 4: 3.77x, 8: 7.01x, 16: 10.47x"
+    },
+    {
+      "test": "real Jev sweep: paired speedup at each level",
+      "status": "INFO",
+      "detail": "1: 1.0x, 4: 3.79x, 8: 7.02x, 16: 10.53x"
+    }
+  ],
+  "timings": {
+    "real_jev_sweep": [
+      {
+        "concurrency": 1,
+        "repeat": 0,
+        "wall_ms": 5245.605999996769,
+        "errors": 0
+      },
+      {
+        "concurrency": 4,
+        "repeat": 0,
+        "wall_ms": 1479.6939579973696,
+        "errors": 0
+      },
+      {
+        "concurrency": 8,
+        "repeat": 0,
+        "wall_ms": 769.9655420001363,
+        "errors": 0
+      },
+      {
+        "concurrency": 16,
+        "repeat": 0,
+        "wall_ms": 460.4564159963047,
+        "errors": 0
+      },
+      {
+        "concurrency": 1,
+        "repeat": 1,
+        "wall_ms": 5102.687749997131,
+        "errors": 0
+      },
+      {
+        "concurrency": 4,
+        "repeat": 1,
+        "wall_ms": 1262.6826670020819,
+        "errors": 0
+      },
+      {
+        "concurrency": 8,
+        "repeat": 1,
+        "wall_ms": 705.8921659991029,
+        "errors": 0
+      },
+      {
+        "concurrency": 16,
+        "repeat": 1,
+        "wall_ms": 527.5150419984129,
+        "errors": 0
+      }
+    ]
+  }
+}

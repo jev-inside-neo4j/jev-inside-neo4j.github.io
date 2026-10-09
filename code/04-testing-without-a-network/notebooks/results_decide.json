@@ -1,0 +1,62 @@
+{
+  "notebook": "01_decide_tests",
+  "saved_at": "2026-10-08T21:04:55",
+  "results": [
+    {
+      "test": "function jev.decide is registered",
+      "status": "PASS",
+      "detail": "jev.decide"
+    },
+    {
+      "test": "validation: choice criteria as an array",
+      "status": "PASS",
+      "detail": "validation: d: a choice question needs criteria as a map of label to description, not an array"
+    },
+    {
+      "test": "validation: no call was made",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "validation: answers are null",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "validation: unknown option name",
+      "status": "PASS",
+      "detail": "validation: unknown option(s): modle; known options are [connect_timeout_ms, max_retries, model, request_timeout_ms]"
+    },
+    {
+      "test": "validation: blank state",
+      "status": "PASS",
+      "detail": "validation: state must not be blank"
+    },
+    {
+      "test": "validation: score criteria as a map",
+      "status": "PASS",
+      "detail": "validation: s: a score question needs criteria as an ordered array of level descriptions, not a map"
+    },
+    {
+      "test": "validation: retries out of range",
+      "status": "PASS",
+      "detail": "validation: max_retries must be between 0 and 5"
+    },
+    {
+      "test": "validation: missing instructions",
+      "status": "PASS",
+      "detail": "validation: d: instructions are required"
+    },
+    {
+      "test": "validation: no questions at all",
+      "status": "PASS",
+      "detail": "validation: questions must be a non-empty map"
+    },
+    {
+      "test": "real Jev",
+      "status": "SKIPPED",
+      "detail": "RUN_REAL_JEV is False"
+    }
+  ],
+  "timings": {}
+}

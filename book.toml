@@ -1,0 +1,16 @@
+[book]
+authors = ["Akmal Chaudhri"]
+language = "en"
+src = "src"
+title = "Lessons Learned Putting Jev Inside Neo4j"
+description = "Complete walkthrough showing how to get Jev working with Neo4j"
+
+[output.html]
+hash-files = true
+git-repository-url = "https://github.com/jev-inside-neo4j/jev-inside-neo4j.github.io"
+edit-url-template = "https://github.com/jev-inside-neo4j/jev-inside-neo4j.github.io/edit/main/{path}"
+no-section-label = true
+
+[output.html.search]
+limit-results = 20
+use-boolean-and = true
