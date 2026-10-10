@@ -182,7 +182,7 @@ That's why there's a second layer. It runs the real function in the real databas
 
 ## The Live Notebook
 
-The notebook is `notebooks/01_decide_tests.ipynb` in the chapter's folder. It connects to your database with the Python driver and runs one `jev.decide` call per test, the same way a query of yours would. Each test prints PASS or FAIL and, at the end, everything is saved to a file, `results_decide.json`, so a run can be kept and compared.
+The notebook is `notebooks/04_decide_tests.ipynb` in the chapter's folder. It connects to your database with the Python driver and runs one `jev.decide` call per test, the same way a query of yours would. Each test prints PASS or FAIL and, at the end, everything is saved to a file, `results_decide.json`, so a run can be kept and compared.
 
 A few choices shape it:
 
@@ -221,9 +221,9 @@ Here's the saved summary from a run with the flag on:
 
 Fourteen passes and one measurement. The detail column holds the error messages, which is a good way to see them all in one place. For example, the retries case reports `validation: max_retries must be between 0 and 5` and the missing-instructions case reports `validation: d: instructions are required`.
 
-The real-Jev check on `confidence` has a detail worth reading: `confidence 0.08, margin 0.08000000000000002`. The two agree up to the floating-point noise in the last digits. This transaction, a cash withdrawal at midnight far from home, is one of the ambiguous kinds from chapter 1 and a margin of 0.08 means Jev could barely separate Flag from Pass. The choice was Pass.
+The real-Jev check on `confidence` has a detail worth reading: `confidence 0.04, margin 0.040000000000000036`. The two agree up to the floating-point noise in the last digits. This transaction, a cash withdrawal at midnight far from home, is one of the ambiguous kinds from chapter 1 and a margin of 0.04 means Jev could barely separate Flag from Pass. The choice was Flag.
 
-The measurement is the wall time per call: a minimum of 230 milliseconds, a median of 256 and a maximum of 497. The first of the five calls was the slowest. This number includes the trip over Bolt and the query planning, so it's always a little more than the `latency_ms` the function reports about itself.
+The measurement is the wall time per call: a minimum of 217 milliseconds, a median of 235 and a maximum of 550. The first of the five calls was the slowest. This number includes the trip over Bolt and the query planning, so it's always a little more than the `latency_ms` the function reports about itself.
 
 ## What You'd Hit in Production
 

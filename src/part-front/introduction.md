@@ -20,7 +20,7 @@ Read the chapters in order. Each builds on the one before and each uses only wha
 
 Every chapter that has code has a folder in the repository, with the project as it stands at the end of that chapter. The folders build on their own, so you can start from any of them if you'd rather not follow every step. The JAR has the same name in every folder, which means a newer one simply replaces the older one.
 
-When a chapter gives Cypher to run, run the statements one at a time. Running a whole file at once only tells you that it succeeded and the point of most of the statements is the result they show you.
+When a chapter gives Cypher to run, run the statements one at a time. Running a whole file at once only tells you that it succeeded and the point of most of the statements is the result they show you. Each Cypher script also comes as a notebook, with one statement per cell, so you can use whichever you prefer.
 
 The output you see in the book is real output from our runs, pasted in. Where a number came from a run that we didn't repeat, the chapter says so. Where something surprised us and we don't know why, the chapter says that too.
 

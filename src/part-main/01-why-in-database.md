@@ -12,7 +12,7 @@ Neo4j -> export -> script -> model -> script -> import -> Neo4j
 
 It works, but it has costs that show up every time:
 
-- **The data leave the database.** Every export is a copy and every copy needs somewhere to live and someone to look after it.
+- **The data leaves the database.** Every export is a copy and every copy needs somewhere to live and someone to look after it.
 - **The glue code is yours.** Retries, timeouts, rate limits and bad responses get solved again in every project, usually the second time something breaks.
 - **The answers arrive detached.** They come back as a file and have to be matched to the right nodes before they're any use.
 - **The decision isn't part of the query.** You can't ask a question about your graph and have a model's judgment as one step in the middle of it.
@@ -162,7 +162,7 @@ jev-inside-neo4j.github.io/
 
 Each chapter that has code gets a folder in `code` with the same name as the chapter. Every folder is a complete project that builds on its own, so you can start from any chapter. The JAR has the same name in every folder, which means a newer one simply replaces the older one.
 
-To get the files, clone the repository. In GitHub Desktop, choose File, then Clone Repository, open the URL tab, paste the address above, pick a folder on your machine and click Clone. If you prefer the command line, `git clone` with the same address does the same job.
+Cloning the repository, building a chapter and running the notebooks are covered in "Setting Up" at the end of this chapter. A table of every file you can run is in "What's in the Repository", right after it.
 
 ## What the Book Builds
 
@@ -179,10 +179,134 @@ Each chapter takes one lesson from the build and adds the code that goes with it
 
 - **Neo4j Desktop.** The function is a plugin, so it runs in a local database. Download from [Neo4j for Desktop](https://neo4j.com/download/).
 - **A Java development kit and Maven.** We build the plugin ourselves.
-- **A Jev API key.** Chapter 2 shows where to put it and chapter 5 shows how the function reads it and where it sends it.
+- **A Jev API key.** Chapter 5 shows how the function reads it and where it sends it.
 - **Git or GitHub Desktop.** To clone the book's repository.
 - **Optionally, Ollama.** Chapter 7 uses it to run a small model on your own machine.
 
 The versions of every tool and library are pinned in the code files that come with the book.
+
+## Setting Up
+
+This section takes you from nothing to a working function. Chapter 2 walks through the same steps again with the reasons behind them, so here we keep to the commands. Where a step runs Cypher, run the statements one at a time. A whole script at once only tells you that it succeeded and most of the statements are there for the result they show.
+
+**1. Get the repository.** On the command line:
+
+```shell
+git clone https://github.com/jev-inside-neo4j/jev-inside-neo4j.github.io.git
+cd jev-inside-neo4j.github.io
+```
+
+In GitHub Desktop, choose File, then Clone Repository, open the URL tab, paste `https://github.com/jev-inside-neo4j/jev-inside-neo4j.github.io`, pick a folder on your machine and click Clone. Either way you end up with a folder named `jev-inside-neo4j.github.io`. All paths in this book are relative to it.
+
+**2. Check Java and Maven.** Both commands should print a version and not an error:
+
+```shell
+java -version
+mvn -version
+```
+
+If either one fails, install it first. The versions the project needs are set in each chapter's `pom.xml`.
+
+**3. Build a chapter.** Each chapter's folder is a complete project. To build chapter 2:
+
+```shell
+cd code/02-first-working-function
+mvn clean package
+```
+
+The JAR appears in the folder's `target` directory as `neo4j-jev-decide-1.0.0.jar`. From chapter 4 on, the folders also have unit tests. Run them on their own with:
+
+```shell
+mvn test
+```
+
+The tests use a fake transport, so they need no network and no key. `mvn clean package` runs them too.
+
+**4. Install the plugin.** In Neo4j Desktop:
+
+1. Stop the database.
+2. On the instances page, click the Open Folder button next to the database. It shows the folders Desktop uses, such as `config`, `import` and `plugins`. Copy the JAR into the `plugins` folder.
+3. Open the configuration file, `neo4j.conf`, in the `config` folder and add these two lines, with your own key in place of the placeholder:
+
+```text
+dbms.security.procedures.allowlist=jev.*
+server.jvm.additional=-DTYPESAFE_API_KEY=your-api-key
+```
+
+4. Start the database and check that the function is registered:
+
+```cypher
+SHOW FUNCTIONS YIELD name WHERE name STARTS WITH 'jev' RETURN name
+```
+
+You should see `jev.decide`. From chapter 6 on, you'll also see `jev.decideAll` under `SHOW PROCEDURES`. Don't commit the key anywhere. It stays in `neo4j.conf` and nowhere else.
+
+Each chapter's JAR has the same name, so moving to another chapter means stopping the database, replacing the JAR in `plugins` with the new one and starting the database again. Only one chapter's JAR can be installed at a time.
+
+**5. Load the data.** Copy `code/data/transactions.csv` into the database's `import` folder. You'll find it with `plugins` and the other folders behind the Open Folder button. The chapter 2 notebook, "Chapter 2: Load the transactions and make the first call", loads the file and makes the first call. Run it before any later chapter, because every later chapter uses the 500 transactions it creates. The Cypher file next to it, `load-and-call.cypher`, has the same statements.
+
+**6. Set up the notebooks.** The notebooks run in Jupyter and connect to your database over Bolt. Create a virtual environment, activate it and install Jupyter in it:
+
+```shell
+python3 -m venv myenv
+source myenv/bin/activate
+```
+
+Then set the connection details in the same terminal, before you launch Jupyter, because the notebooks read them from the environment:
+
+```shell
+export NEO4J_URI="bolt://localhost:7687"
+export NEO4J_USERNAME="neo4j"
+export NEO4J_PASSWORD="your-password"
+export NEO4J_DATABASE="neo4j"
+jupyter lab
+```
+
+On Windows, use `set` in place of `export` and `myenv\Scripts\activate` in place of `source`. Each notebook installs the exact versions of the two libraries it needs in its first code cell, so there is nothing else to install. The notebooks never see your API key. The database reads it from `neo4j.conf`.
+
+**7. Optionally, set up Ollama.** Chapter 7 is the only chapter that uses it. Install Ollama, then pull the model once:
+
+```shell
+ollama pull tev1:0.8b
+```
+
+Leave Ollama running while you work through chapter 7.
+
+**If something doesn't work**
+
+- **`SHOW FUNCTIONS` doesn't list `jev.decide`.** The JAR isn't in `plugins`, the allowlist line is missing from `neo4j.conf` or you didn't restart the database after changing either one.
+- **A call returns `no_api_key`.** The `server.jvm.additional` line is missing or misspelled. Check it and restart the database.
+- **A chapter's notebook fails on something the chapter introduced.** You may have an earlier chapter's JAR installed. Install the JAR from the chapter you're reading and restart.
+- **A chapter 7 call returns an `io` error naming `localhost:11434`.** Ollama isn't running.
+- **A notebook can't connect.** The environment variables were set after Jupyter started. Stop Jupyter, set them and start it again from the same terminal.
+
+## What's in the Repository
+
+Every file you run is in a chapter's folder under `code`, apart from the data file. The `.cypher` files hold the statements the chapter shows. The notebooks run the same statements one per cell and show each result. Run the statements one at a time, in order. The test notebooks check the function against the real services and save what they found in a JSON file next to them.
+
+| File | Chapter | What it does | Needs |
+|---|---|---|---|
+| `code/data/transactions.csv` | 2 | The 500 synthetic transactions | Copied into the `import` folder |
+| `load-and-call.cypher` | 2 | Loads the transactions and makes the first call | Plugin |
+| `notebooks/02_load_and_call.ipynb` | 2 | The same statements, one per cell | Plugin, Jupyter |
+| `failure-demos.cypher` | 3 | Triggers each kind of failure and shows the error | Plugin, data loaded |
+| `notebooks/03_failure_demos.ipynb` | 3 | The same statements, one per cell | Plugin, data loaded, Jupyter |
+| `notebooks/04_decide_tests.ipynb` | 4 | Live tests of `jev.decide`, including retries and timings | Plugin, key, Jupyter |
+| `notebooks/results_decide.json` | 4 | Saved results of the last run | Written by the notebook |
+| `key-demos.cypher` | 5 | Shows where the key is sent and where it isn't | Plugin, key |
+| `notebooks/05_key_demos.ipynb` | 5 | The same statements, one per cell | Plugin, key, Jupyter |
+| `notebooks/05_decide_tests.ipynb` | 5 | Live tests, now including the key rules | Plugin, key, Jupyter |
+| `notebooks/results_decide.json` | 5 | Saved results of the last run | Written by the notebook |
+| `run-all-500.cypher` | 6 | Decides all 500 transactions with `jev.decideAll` and stores `Decision` nodes | Plugin, key, data loaded |
+| `notebooks/06_run_all_500.ipynb` | 6 | The same statements, one per cell | Plugin, key, data loaded, Jupyter |
+| `notebooks/06_decideall_tests.ipynb` | 6 | Live tests of the batch procedure and the concurrency sweep | Plugin, key, Jupyter |
+| `notebooks/results_decideall.json` | 6 | Saved results of the last run | Written by the notebook |
+| `run-local-500.cypher` | 7 | Decides all 500 transactions with the local model and stores `LocalDecision` nodes | Plugin, Ollama, the chapter 6 decisions |
+| `notebooks/07_run_local_500.ipynb` | 7 | The same statements, one per cell | Plugin, Ollama, the chapter 6 decisions, Jupyter |
+| `notebooks/07_decide_tests.ipynb` | 7 | Live tests against Jev and the local model | Plugin, key, Ollama, Jupyter |
+| `notebooks/07_decideall_tests.ipynb` | 7 | Live batch tests against Jev and the local model, with the local sweep | Plugin, key, Ollama, Jupyter |
+| `notebooks/results_decide.json` and `notebooks/results_decideall.json` | 7 | Saved results of the last runs | Written by the notebooks |
+
+The results files are overwritten each time you run their notebook. The Java source is in each folder's `src` directory and the chapters explain it as it grows.
 
 In the next chapter we build the first version of the function and make the call from the preview on a real transaction.

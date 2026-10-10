@@ -90,17 +90,17 @@ The result now says what happened. A new field in the metadata, `authenticated`,
       type: "choice",
       choice: "Pass",
       probabilities: {
-        Pass: 0.92,
-        Flag: 0.08
+        Pass: 0.91,
+        Flag: 0.09
       },
-      confidence: 0.83
+      confidence: 0.82
     }
   },
   error_message: null,
   metadata: {
     authenticated: TRUE,
     model: "jev-latest",
-    latency_ms: 413,
+    latency_ms: 312,
     attempts: 1
   }
 }
@@ -127,7 +127,7 @@ RETURN jev.decide(
   metadata: {
     authenticated: FALSE,
     model: "jev-latest",
-    latency_ms: 5,
+    latency_ms: 0,
     attempts: 1
   }
 }
@@ -144,15 +144,15 @@ Leave `max_retries` at its default and the same call makes three attempts, with 
   metadata: {
     authenticated: FALSE,
     model: "jev-latest",
-    latency_ms: 1514,
+    latency_ms: 1515,
     attempts: 3
   }
 }
 ```
 
-The call took 1,514 milliseconds, just over the 500 plus 1,000 milliseconds of waiting. That's the backoff arithmetic from chapter 3 showing up in a real measurement.
+The call took 1,515 milliseconds, just over the 500 plus 1,000 milliseconds of waiting. That's the backoff arithmetic from chapter 3 showing up in a real measurement.
 
-The statements from this chapter are also in `notebooks/02_key_demos.ipynb`, which runs them one per cell and shows each result.
+The statements from this chapter are also in `notebooks/05_key_demos.ipynb`, which runs them one per cell and shows each result.
 
 ## Errors That Name the Host
 
@@ -166,7 +166,7 @@ The rule has to hold for every input, so it's tested from both sides.
 
 The unit tests check it directly. `OptionsTest` checks that the key is sent only to `https://api.typesafe.ai` and that case doesn't matter. It checks that it's never sent to `localhost`, to another site or over plain `http` and that the look-alike addresses don't get it. Several tests in `JevClientTest` go further and look at the request the fake transport received. A local endpoint gets no `Authorization` header. The key isn't sent to another host even when one is configured. An address with `@evil.com` is sent to `evil.com` and still without the key. The key function isn't called for non-Jev endpoints. Together with the tests from earlier chapters there are now 55 and all of them passed.
 
-The notebook checks it against the real function. It points `jev.decide` at two look-alike addresses. Both end in `.invalid`, a name reserved so that it never resolves, so the test sends nothing to a real server. One adds a suffix to the right name. The other puts the right name in front of an `@`. Both should come back with `authenticated` false and not with a `no_api_key` error.
+The notebook, `notebooks/05_decide_tests.ipynb` in this chapter's folder, checks it against the real function. It points `jev.decide` at two look-alike addresses. Both end in `.invalid`, a name reserved so that it never resolves, so the test sends nothing to a real server. One adds a suffix to the right name. The other puts the right name in front of an `@`. Both should come back with `authenticated` false and not with a `no_api_key` error.
 
 Here's what the notebook recorded:
 
@@ -181,9 +181,9 @@ Here's what the notebook recorded:
 
 The two INFO rows are the best evidence. For the address that starts with `https://api.typesafe.ai@`, the error says the function was reaching `lookalike.invalid`. That's what the parser decided the host was and since it isn't the real host, no key was sent. The text checks we rejected earlier would have sent it.
 
-The rest of the run was clean as well. The notebook recorded 25 passes and 3 observations. That includes the closed-port checks, which show the same 1,514 ms for three attempts and the hosted section: five real calls, no errors, the key sent each time and one attempt each.
+The rest of the run was clean as well. The notebook recorded 25 passes and 3 observations. That includes the closed-port checks, which show 1,516 ms for three attempts and the hosted section: five real calls, no errors, the key sent each time and one attempt each.
 
-One more detail from that hosted run. The fixture is the midnight cash withdrawal from chapter 4 and this time Jev chose Flag, with `confidence 0.22, margin 0.21999999999999997`. In chapter 4 the same fixture gave Pass with a margin of 0.08. The transaction is a genuinely ambiguous one and Jev's answers on it aren't guaranteed to be the same from one run to the next.
+One more detail from that hosted run. The fixture is the midnight cash withdrawal from chapter 4 and this time Jev chose Pass, with `confidence 0.08, margin 0.08000000000000002`. In chapter 4 the same fixture gave Flag with a margin of 0.04. The transaction is a genuinely ambiguous one and Jev's answers on it aren't guaranteed to be the same from one run to the next.
 
 ## What You'd Hit in Production
 

@@ -34,7 +34,7 @@ The project is small. Five files and a pom. You'll find them in the `code` folde
 code/02-first-working-function/
   pom.xml
   load-and-call.cypher
-  notebooks/01_load_and_call.ipynb   the same statements, one per cell
+  notebooks/02_load_and_call.ipynb   the same statements, one per cell
   src/main/java/com/example/jevdecide/
     JevDecide.java          the function Neo4j sees
     JevClient.java          builds the request and reads the response
@@ -296,7 +296,7 @@ For the record, the label we hid says T0001 isn't fraud, so Pass was the right c
 
 That's a decision made inside the database. The query took a node, handed its properties to a function and got an answer back as a value. Nothing was exported.
 
-The same statements are also in `notebooks/01_load_and_call.ipynb`, which runs them one per cell and shows each result.
+The same statements are also in `notebooks/02_load_and_call.ipynb`, which runs them one per cell and shows each result.
 
 ## What You'd Hit in Production
 

@@ -4,7 +4,7 @@
 
 Everything so far has been one decision per call. That's fine for a single transaction, but our graph has 500 and a real one could have millions.
 
-The problem is in how a function call works. `jev.decide` sends a request and waits for the answer and the whole query waits with it. A query that calls it for every node makes its calls one after another. From the chapter 4 notebook, a hosted call takes about a quarter of a second, so 500 of them in a row would take a little over two minutes. That's an estimate from the arithmetic, but we'll see later in this chapter that it holds up.
+The problem is in how a function call works. `jev.decide` sends a request and waits for the answer and the whole query waits with it. A query that calls it for every node makes its calls one after another. From the chapter 4 notebook, a hosted call takes about a quarter of a second, so 500 of them in a row would take about two minutes. That's an estimate from the arithmetic, but we'll see later in this chapter that it holds up.
 
 Most of that time is waiting. The database sits idle while Jev thinks. If we could have several requests in flight at once, the waiting would overlap. This chapter adds the piece that does it.
 
@@ -73,7 +73,7 @@ If the thread that called the procedure is interrupted, for instance when someon
 
 The 12 new unit tests in `BatchRunnerTest` use the fake transport from chapter 4. They check the ordering, the bound on concurrency, the default of four, the per-row failures, the limits and the interrupt. All 67 tests in the project pass and the batch tests took about half a second, longer than the rest because they run real threads.
 
-The notebook, `02_decideall_tests.ipynb`, checks the same things against the real procedure. A closed port is enough for most of them, because every call fails and still has to land in the right row:
+The notebook, `06_decideall_tests.ipynb`, checks the same things against the real procedure. A closed port is enough for most of them, because every call fails and still has to land in the right row:
 
 | Test | Status | Detail |
 |---|---|---|
@@ -138,7 +138,7 @@ Created 500 nodes, created 500 relationships, set 3,500 properties, added 500 la
 Completed after 15,465 ms
 ```
 
-That's 500 hosted decisions in about 15.5 seconds, around 31 milliseconds each. The sequential estimate at the start of the chapter, 500 calls at about a quarter of a second each, comes to a little over two minutes, so concurrency 8 took roughly an eighth of the time. The next section looks at why that fits.
+That's 500 hosted decisions in about 15.5 seconds, around 31 milliseconds each. The sequential estimate at the start of the chapter, 500 calls at about a quarter of a second each, comes to about two minutes, so concurrency 8 took roughly an eighth of the time. The next section looks at why that fits.
 
 The `Decision` node settles the properties we left open in chapter 1:
 
@@ -260,7 +260,7 @@ MATCH (d:Decision) DETACH DELETE d
 
 The full-run statement only picks up transactions that have no decision, so without this step a second run would find nothing to do.
 
-All nine statements from this chapter are also in `notebooks/03_run_all_500.ipynb`, which runs them one per cell and shows each result. The reset is the last one and is switched off by default.
+All nine statements from this chapter are also in `notebooks/06_run_all_500.ipynb`, which runs them one per cell and shows each result. The reset is the last one and is switched off by default. If the decisions are already stored, statement 2 stores 0, because it only picks up transactions that have no decision yet.
 
 The overall picture is stable and the details move. A transaction at the edge can land on either side and the five least-sure flags were completely different transactions each time (T0467, T0476 and T0020 led the first run's list, T0289, T0316 and T0359 the second's). All of them sat at 0.50 or 0.51. The transactions near the line move around and the ones far from it don't.
 
@@ -272,16 +272,16 @@ The notebook's hosted sweep times a batch of 20 items at four levels of concurre
 
 | Concurrency | Run 1 (ms) | Run 2 (ms) | Median (ms) | Speedup |
 |---|---|---|---|---|
-| 1 | 5,246 | 5,103 | 5,174 | 1.0x |
-| 4 | 1,480 | 1,263 | 1,371 | 3.77x |
-| 8 | 770 | 706 | 738 | 7.01x |
-| 16 | 460 | 528 | 494 | 10.47x |
+| 1 | 5,118 | 4,438 | 4,778 | 1.0x |
+| 4 | 1,212 | 1,121 | 1,167 | 4.09x |
+| 8 | 703 | 693 | 698 | 6.85x |
+| 16 | 828 | 463 | 646 | 7.4x |
 
-There were no errors at any level. At a concurrency of 1, the 20 calls took about 259 milliseconds each, which gives us the number behind the estimate at the start of the chapter. The speedup is close to the concurrency up to 8, so most of the time really was waiting.
+There were no errors at any level. At a concurrency of 1, the 20 calls took about 240 milliseconds each, which gives us the number behind the estimate at the start of the chapter. The speedup is close to the concurrency at 4 and a little under it at 8, so most of the time really was waiting.
 
-The result at 16 needs a note. Twenty items on 16 workers still need two rounds, because the last four calls have to wait for workers to free up. If every call took the same time, the best possible speedup would be 10 times and the measured 10.47 is a little above that because calls vary in length. More workers than items buys nothing, because a batch of 20 can't use 32 threads.
+The result at 16 needs a note. Twenty items on 16 workers still need two rounds, because the last four calls have to wait for workers to free up. If every call took the same time, the best possible speedup would be 10 times and the measured 7.4 falls short of that. Calls vary in length and the second round waits for its slowest call, but we didn't measure how much of the gap that explains. More workers than items buys nothing, because a batch of 20 can't use 32 threads.
 
-Back to the full run: 500 calls at about 259 milliseconds would take roughly 130 seconds one at a time. The measured 15.5 seconds at a concurrency of 8 is about 8.4 times faster, which is in line with the 7 times the sweep showed at that level. The full run wasn't repeated, so treat that as one measurement and not a benchmark.
+Back to the full run: 500 calls at about 240 milliseconds would take roughly 120 seconds one at a time. The measured 15.5 seconds at a concurrency of 8 is about 7.7 times faster, which is in line with the roughly 7 times the sweep showed at that level. The full run wasn't repeated, so treat that as one measurement and not a benchmark.
 
 ## What You'd Hit in Production
 

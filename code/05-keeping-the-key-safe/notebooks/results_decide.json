@@ -1,6 +1,6 @@
 {
-  "notebook": "01_decide_tests",
-  "saved_at": "2026-10-08T21:17:57",
+  "notebook": "05_decide_tests",
+  "saved_at": "2026-10-10T00:58:28",
   "results": [
     {
       "test": "function jev.decide is registered",
@@ -80,7 +80,7 @@
     {
       "test": "closed port: backoff waits happened (0.5 s + 1 s)",
       "status": "PASS",
-      "detail": "1515 ms"
+      "detail": "1516 ms"
     },
     {
       "test": "key rule: not sent to a look-alike (suffix on the real name)",
@@ -113,10 +113,43 @@
       "detail": "io: ConnectException reaching lookalike.invalid (after 1 attempt)"
     },
     {
-      "test": "real Jev",
-      "status": "SKIPPED",
-      "detail": "RUN_REAL_JEV is False"
+      "test": "real Jev: no errors",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "real Jev: the key was sent",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "real Jev: one attempt each",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "real Jev: the choice is one we offered",
+      "status": "PASS",
+      "detail": "Pass"
+    },
+    {
+      "test": "real Jev: confidence is the margin between the two probabilities",
+      "status": "PASS",
+      "detail": "confidence 0.08, margin 0.08000000000000002"
+    },
+    {
+      "test": "real Jev: wall time per call (ms)",
+      "status": "INFO",
+      "detail": "min 219, median 246, max 500"
     }
   ],
-  "timings": {}
+  "timings": {
+    "real_jev_wall_ms": [
+      378.8,
+      237.0,
+      499.7,
+      218.7,
+      246.2
+    ]
+  }
 }

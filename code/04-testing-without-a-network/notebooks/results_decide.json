@@ -1,6 +1,6 @@
 {
-  "notebook": "01_decide_tests",
-  "saved_at": "2026-10-08T21:04:55",
+  "notebook": "04_decide_tests",
+  "saved_at": "2026-10-10T00:50:07",
   "results": [
     {
       "test": "function jev.decide is registered",
@@ -53,10 +53,38 @@
       "detail": "validation: questions must be a non-empty map"
     },
     {
-      "test": "real Jev",
-      "status": "SKIPPED",
-      "detail": "RUN_REAL_JEV is False"
+      "test": "real Jev: no errors",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "real Jev: one attempt each",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "real Jev: the choice is one we offered",
+      "status": "PASS",
+      "detail": "Flag"
+    },
+    {
+      "test": "real Jev: confidence is the margin between the two probabilities",
+      "status": "PASS",
+      "detail": "confidence 0.04, margin 0.040000000000000036"
+    },
+    {
+      "test": "real Jev: wall time per call (ms)",
+      "status": "INFO",
+      "detail": "min 217, median 235, max 550"
     }
   ],
-  "timings": {}
+  "timings": {
+    "real_jev_wall_ms": [
+      550.3,
+      235.1,
+      226.8,
+      217.4,
+      270.9
+    ]
+  }
 }

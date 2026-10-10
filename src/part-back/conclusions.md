@@ -34,15 +34,15 @@ We measured a fair amount and it's worth being plain about what it supports.
 
 **The hosted service is close to repeatable, not exactly.** We ran the full set of 500 twice. The totals barely moved, 267 flags in the first run and 268 in the second, but the five least-sure flags were different transactions each time, all at 0.50 or 0.51. The transactions near the line move around and the ones far from it don't. If you store decisions, treat them as a snapshot.
 
-**Concurrency paid off against the hosted service.** In the sweep of 20 items, 4 workers gave 3.77 times the speed of 1, 8 gave 7.01 times and 16 gave 10.47 times. The full run of 500 took 15,465 milliseconds at a concurrency of 8, where one at a time would have taken about two minutes by our estimate. Against the local model the picture was different: the best speedup was 2.79 times at 4 workers and 8 and 16 workers were slower than 4.
+**Concurrency paid off against the hosted service.** In the sweep of 20 items, 4 workers gave 4.09 times the speed of 1, 8 gave 6.85 times and 16 gave 7.4 times. The full run of 500 took 15,465 milliseconds at a concurrency of 8, where one at a time would have taken about two minutes by our estimate. Against the local model the picture was different: two workers gave about 2.2 times and more workers added nothing reliable.
 
-**A small local model is a different judge.** With the same prompt and the same eight properties, the small local model (`tev1:0.8b`, served by Ollama) flagged 20 of the 500 and caught 16 of the 189 transactions labeled as fraud, where the hosted service flagged 268 and caught 171. The two agreed on 252 of 500. We haven't tried other prompts or models, so this shows how far apart the two setups are with this one prompt. It doesn't say what a local model can do. Its probabilities also came in only 15 distinct values, which we noted and didn't explain.
+**A small local model is a different judge.** With the same prompt and the same eight properties, the small local model (`tev1:0.8b`, served by Ollama) flagged 20 of the 500 and caught 16 of the 189 transactions labeled as fraud, where the hosted service flagged 268 and caught 171. The two agreed on 252 of 500. We haven't tried other prompts or models, so this shows how far apart the two setups are with this one prompt. It doesn't say what a local model can do. Its probabilities also came in only 16 distinct values, which we noted and didn't explain.
 
-**Timings from a repeated request mislead.** The local sweep sent the same 40 small requests again and again and ran at about 5 milliseconds per item. The full run, with 500 different transactions, ran at about 110 milliseconds per item at the same concurrency. We haven't found out why and it's a reminder to time the real workload.
+**Timings from a repeated request mislead.** The local sweep sent the same 40 small requests again and again and ran at about 5 milliseconds per item. The full run, with 500 different transactions, ran at about 90 milliseconds per item at the same concurrency. We haven't found out why and it's a reminder to time the real workload.
 
 **One thing we can't explain.** At several levels of local concurrency, the same batch took one of two speeds, one about twice the other, with no pattern we could see.
 
-**The data is synthetic.** Each transaction was generated from a scenario with a latent probability of fraud and the label was drawn from it, so some of the fraud in the data was never certain. The results say how the code and the models behave on this data. They aren't evidence about real fraud.
+**The data are synthetic.** Each transaction was generated from a scenario with a latent probability of fraud and the label was drawn from it, so some of the fraud in the data was never certain. The results say how the code and the models behave on this data. They aren't evidence about real fraud.
 
 ## What We Left Out
 

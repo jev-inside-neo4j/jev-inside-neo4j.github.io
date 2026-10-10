@@ -1,6 +1,6 @@
 {
-  "notebook": "02_decideall_tests",
-  "saved_at": "2026-10-08T21:45:30",
+  "notebook": "06_decideall_tests",
+  "saved_at": "2026-10-10T02:24:50",
   "results": [
     {
       "test": "procedure jev.decideAll is registered",
@@ -105,12 +105,12 @@
     {
       "test": "real Jev sweep: speedup at each level",
       "status": "INFO",
-      "detail": "1: 1.0x, 4: 3.77x, 8: 7.01x, 16: 10.47x"
+      "detail": "1: 1.0x, 4: 4.09x, 8: 6.85x, 16: 7.4x"
     },
     {
       "test": "real Jev sweep: paired speedup at each level",
       "status": "INFO",
-      "detail": "1: 1.0x, 4: 3.79x, 8: 7.02x, 16: 10.53x"
+      "detail": "1: 1.0x, 4: 4.09x, 8: 6.84x, 16: 7.88x"
     }
   ],
   "timings": {
@@ -118,49 +118,49 @@
       {
         "concurrency": 1,
         "repeat": 0,
-        "wall_ms": 5245.605999996769,
+        "wall_ms": 5117.548875001376,
         "errors": 0
       },
       {
         "concurrency": 4,
         "repeat": 0,
-        "wall_ms": 1479.6939579973696,
+        "wall_ms": 1212.1217909989355,
         "errors": 0
       },
       {
         "concurrency": 8,
         "repeat": 0,
-        "wall_ms": 769.9655420001363,
+        "wall_ms": 703.34479200028,
         "errors": 0
       },
       {
         "concurrency": 16,
         "repeat": 0,
-        "wall_ms": 460.4564159963047,
+        "wall_ms": 827.7882080001291,
         "errors": 0
       },
       {
         "concurrency": 1,
         "repeat": 1,
-        "wall_ms": 5102.687749997131,
+        "wall_ms": 4438.109708000411,
         "errors": 0
       },
       {
         "concurrency": 4,
         "repeat": 1,
-        "wall_ms": 1262.6826670020819,
+        "wall_ms": 1121.481499998481,
         "errors": 0
       },
       {
         "concurrency": 8,
         "repeat": 1,
-        "wall_ms": 705.8921659991029,
+        "wall_ms": 692.6826670023729,
         "errors": 0
       },
       {
         "concurrency": 16,
         "repeat": 1,
-        "wall_ms": 527.5150419984129,
+        "wall_ms": 463.4131659986451,
         "errors": 0
       }
     ]

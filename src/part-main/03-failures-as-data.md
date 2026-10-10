@@ -229,7 +229,7 @@ Three transactions got a decision and one got an explanation. The bad row used n
 
 All three validation errors above are failures we can trigger on demand. The network failures are harder to show, because a real timeout or a real 503 isn't something you can order up. That's the other reason for the fake transport in the next chapter. It lets us produce any failure we like and check that the function responds the way this chapter says it does.
 
-The statements from this chapter are also in `notebooks/01_failure_demos.ipynb`, which runs them one per cell and shows each result.
+The statements from this chapter are also in `notebooks/03_failure_demos.ipynb`, which runs them one per cell and shows each result.
 
 ## What You'd Hit in Production
 
