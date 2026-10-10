@@ -220,7 +220,7 @@ The notebook's local sweep times a batch of 40 items at five levels of concurren
 | 8 | 263 | 1.54x |
 | 16 | 181 | 2.24x |
 
-There were no errors at any level. A second worker roughly halves the time, a speedup of about 2.2 times, and more workers add nothing reliable. At 4 the median matched 2, at 8 it was slower and at 16 it was back near 2. That's not the hosted result, where the speedup kept growing. A local model can run only so many calls at once and extra workers just queue behind each other. The sweep doesn't show that 4 workers beat 2, which is worth remembering since we used 4 for the full run.
+There were no errors at any level. A second worker roughly halves the time, a speedup of about 2.2 times and more workers add nothing reliable. At 4 the median matched 2, at 8 it was slower and at 16 it was back near 2. That's not the hosted result, where the speedup kept growing. A local model can run only so many calls at once and extra workers just queue behind each other. The sweep doesn't show that 4 workers beat 2, which is worth remembering since we used 4 for the full run.
 
 The individual timings show something else, which we can't yet explain. At concurrency 4 the ten runs of the same batch fell into two groups. Seven took 174 to 196 milliseconds and three took 307 to 353. At concurrency 2 the runs split in a similar way: seven took 162 to 196 and three took 286 to 351. At 16 six took 163 to 182 and four took 295 to 363. At 8 the pattern is looser, with all but two runs between 258 and 350. The slow group is roughly twice the fast one and which runs landed in which group looks random. At a concurrency of 1 every run took between 308 and 593 milliseconds, with no fast group.
 
