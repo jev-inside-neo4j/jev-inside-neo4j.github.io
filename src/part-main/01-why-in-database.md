@@ -225,7 +225,7 @@ The tests use a fake transport, so they need no network and no key. `mvn clean p
 **4. Install the plugin.** In Neo4j Desktop:
 
 1. Stop the database.
-2. On the instances page, click the Open Folder button next to the database. It shows the folders Desktop uses, such as `config`, `import` and `plugins`. Copy the JAR into the `plugins` folder.
+2. On the instances page, click the **Open Folder** button next to the database. It shows the folders Desktop uses, such as `config`, `import` and `plugins`. Copy the JAR into the `plugins` folder.
 3. Open the configuration file, `neo4j.conf`, in the `config` folder and add these two lines, with your own key in place of the placeholder:
 
 ```text
@@ -243,7 +243,7 @@ You should see `jev.decide`. From chapter 6 on, you'll also see `jev.decideAll` 
 
 Each chapter's JAR has the same name, so moving to another chapter means stopping the database, replacing the JAR in `plugins` with the new one and starting the database again. Only one chapter's JAR can be installed at a time.
 
-**5. Load the data.** Copy `code/data/transactions.csv` into the database's `import` folder. You'll find it with `plugins` and the other folders behind the Open Folder button. The chapter 2 notebook, "Chapter 2: Load the transactions and make the first call", loads the file and makes the first call. Run it before any later chapter, because every later chapter uses the 500 transactions it creates. The Cypher file next to it, `load-and-call.cypher`, has the same statements.
+**5. Load the data.** Copy `code/data/transactions.csv` into the database's `import` folder. You'll find it with `plugins` and the other folders behind the Open Folder button. The chapter 2 notebook `02_load_and_call.ipynb`, loads the file and makes the first call. Run it before any later chapter, because every later chapter uses the 500 transactions it creates.
 
 **6. Set up the notebooks.** The notebooks run in Jupyter and connect to your database over Bolt. Create a virtual environment, activate it and install Jupyter in it:
 
