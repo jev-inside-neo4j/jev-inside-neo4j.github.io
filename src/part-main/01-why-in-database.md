@@ -259,7 +259,6 @@ export NEO4J_URI="bolt://localhost:7687"
 export NEO4J_USERNAME="neo4j"
 export NEO4J_PASSWORD="your-password"
 export NEO4J_DATABASE="neo4j"
-jupyter lab
 ```
 
 On Windows, use `set` in place of `export` and `myenv\Scripts\activate` in place of `source`. Each notebook installs the exact versions of the two libraries it needs in its first code cell, so there is nothing else to install. The notebooks never see your API key. The database reads it from `neo4j.conf`.
