@@ -23,6 +23,8 @@ The three arguments are:
 - **`questions`** is one map of questions, shared by every item.
 - **`options`** is optional. It takes the same options as `jev.decide`, plus one new one: `concurrency`.
 
+If you misspell an option, the error lists the options `jev.decide` accepts (`connect_timeout_ms`, `max_retries`, `model`, `request_timeout_ms` and `url`) and leaves out `concurrency`, which only `jev.decideAll` accepts. The list is incomplete, not the option.
+
 Each row it returns has the same `answers`, `error_message` and `metadata` as a single call, plus the `id` that was passed in. That lets us match each answer to its node.
 
 Like `jev.decide`, the procedure is a thin wrapper. The class Neo4j sees, `JevDecideAll`, hands everything to `BatchRunner`, which holds the logic. `BatchRunner` takes the same `JevClient` we've been building, so every guarantee from the earlier chapters still applies to each row: validation first, retries with backoff, failures as data and the key rule.
@@ -64,7 +66,7 @@ A failing row doesn't stop the others. Each row carries its own `error_message`,
 
 - An item without a `state`, or a `null` item, becomes a row with a `validation:` error. The rest run.
 - A bad `concurrency` value gives every row a `validation:` error and makes no calls at all.
-- A batch holds at most 10,000 items. One more is rejected with a message that says so. Larger sets go in several calls.
+- A batch holds at most 10,000 items. One more is the exception to the failures-as-data rule: the whole call fails with an error that says so, and no rows come back. Larger sets go in several calls.
 - An unexpected exception in a worker becomes an `internal:` error on its row.
 
 If the thread that called the procedure is interrupted, for instance when someone cancels the query, the pool is shut down at once and the unfinished rows come back as `interrupted:` errors. The thread's interrupt flag is set again afterwards, so Neo4j can see the cancellation.
@@ -73,7 +75,7 @@ If the thread that called the procedure is interrupted, for instance when someon
 
 The 12 new unit tests in `BatchRunnerTest` use the fake transport from chapter 4. They check the ordering, the bound on concurrency, the default of four, the per-row failures, the limits and the interrupt. All 67 tests in the project pass and the batch tests took about half a second, longer than the rest because they run real threads.
 
-The notebook, `06_decideall_tests.ipynb`, checks the same things against the real procedure. A closed port is enough for most of them, because every call fails and still has to land in the right row:
+The notebook, `06_decideall_tests.ipynb`, checks the same things against the real procedure. A closed port is enough for most of them, because every call fails and still has to land in the right row. Here are some of the results:
 
 | Test | Status | Detail |
 |---|---|---|
@@ -86,7 +88,7 @@ The notebook, `06_decideall_tests.ipynb`, checks the same things against the rea
 | ids: a missing id falls back to the position | PASS | [0, 1] |
 | limit: an empty list gives no rows | PASS | 0 rows |
 
-The notebook recorded 20 passes and 2 measurements. The measurements come in the timing section below.
+With the hosted section switched on, the notebook recorded 20 passes and 2 measurements. The measurements come in the timing section below.
 
 ## The Full Run
 
@@ -130,15 +132,16 @@ The map projection is the same one we've used since chapter 2, so `scenario`, `t
 - **The statement can be run again.** Its first line only picks up transactions that have no decision, so after a partial failure, running it a second time fills the gaps and leaves the rest alone. `MERGE` on the relationship means it never creates a second decision for the same transaction.
 - **It's one call.** The whole set of 500 goes to the procedure at once. The rows come back when every call has finished.
 
-Neo4j reported:
+The notebook reported:
 
 ```
-Created 500 nodes, created 500 relationships, set 3,500 properties, added 500 labels
-
-Completed after 15,465 ms
+Changes: nodes_created 500, relationships_created 500, properties_set 3500
+Completed after 14,172 ms
 ```
 
-That's 500 hosted decisions in about 15.5 seconds, around 31 milliseconds each. The sequential estimate at the start of the chapter, 500 calls at about a quarter of a second each, comes to about two minutes, so concurrency 8 took roughly an eighth of the time. The next section looks at why that fits.
+That's all 500 decisions stored in one pass and every result below comes from this run. It doesn't always go that smoothly. In an earlier run, one row came back with an error and was left out, which is what the `WHERE error_message IS NULL` line is for. We don't know what the error was, because the statement doesn't keep it. A count of the decisions showed 499 of 500 and, as the second detail above says, running the same statement again picked up the one transaction without a decision. It stored it in 446 milliseconds.
+
+So 500 hosted decisions took about 14.2 seconds, around 28 milliseconds each. The timings section below measures about 274 milliseconds for a call made on its own, which puts 500 calls in a row at about 137 seconds. That's almost ten times longer than the run took, which is more than eight workers should manage if every call takes the same time. The calls in this run were simply faster: 14.2 seconds on 8 workers for 500 calls works out at about 227 milliseconds each. Call times vary from run to run, so treat the speedup as one measurement.
 
 The `Decision` node settles the properties we left open in chapter 1:
 
@@ -176,15 +179,15 @@ LIMIT 5
 ╒════════╤════════╤════════╕
 │t.txn_id│t.amount│d.p_flag│
 ╞════════╪════════╪════════╡
-│"T0289" │187.76  │0.5     │
+│"T0114" │170.87  │0.5     │
 ├────────┼────────┼────────┤
-│"T0316" │161.26  │0.51    │
+│"T0173" │5.39    │0.52    │
 ├────────┼────────┼────────┤
-│"T0359" │242.68  │0.51    │
+│"T0308" │60.59   │0.52    │
 ├────────┼────────┼────────┤
-│"T0361" │226.94  │0.51    │
+│"T0058" │733.15  │0.52    │
 ├────────┼────────┼────────┤
-│"T0431" │350.45  │0.51    │
+│"T0130" │308.49  │0.52    │
 └────────┴────────┴────────┘
 ```
 
@@ -198,10 +201,10 @@ ORDER BY choice, is_fraud
 
 | Decision | Not fraud | Fraud |
 |---|---|---|
-| Flag | 97 | 171 |
-| Pass | 214 | 18 |
+| Flag | 98 | 170 |
+| Pass | 213 | 19 |
 
-Of the 189 transactions labeled as fraud, 171 were flagged and 18 were passed. Of the 268 flagged, 97 were legitimate. Those 18 are the cases to worry about, so a query can list them, least sure first:
+Of the 189 transactions labeled as fraud, 170 were flagged and 19 were passed. Of the 268 flagged, 98 were legitimate. Those 19 are the cases to worry about, so a query can list them, least sure first:
 
 ```cypher
 MATCH (t:Transaction)-[:HAS_DECISION]->(d:Decision)
@@ -215,19 +218,19 @@ LIMIT 5
 ╒════════╤══════════════╤════════╕
 │t.txn_id│t.scenario    │d.p_flag│
 ╞════════╪══════════════╪════════╡
-│"T0441" │"night_atm"   │0.49    │
+│"T0445" │"night_atm"   │0.49    │
 ├────────┼──────────────┼────────┤
-│"T0089" │"night_atm"   │0.45    │
+│"T0443" │"traveler"    │0.48    │
 ├────────┼──────────────┼────────┤
-│"T0180" │"big_purchase"│0.32    │
+│"T0180" │"big_purchase"│0.37    │
 ├────────┼──────────────┼────────┤
-│"T0357" │"big_purchase"│0.26    │
+│"T0089" │"night_atm"   │0.32    │
 ├────────┼──────────────┼────────┤
-│"T0113" │"big_purchase"│0.26    │
+│"T0357" │"big_purchase"│0.28    │
 └────────┴──────────────┴────────┘
 ```
 
-The scenario column shows where the misses come from: late-night cash withdrawals and big purchases, the kinds of transaction that chapter 1 described as genuinely ambiguous. Remember that the labels were drawn from a latent probability, so some "fraud" here is fraud that no judge could be sure of.
+The scenario column shows where the misses come from. Four of the five are late-night cash withdrawals or big purchases, the kinds of transaction that chapter 1 described as genuinely ambiguous. The fifth, T0443, is a traveler, and Jev gave it almost even odds. Remember that the labels were drawn from a latent probability, so some "fraud" here is fraud that no judge could be sure of.
 
 The last of the questions from chapter 1 is how much of the graph could be handled without a person looking at it. That depends on a threshold and any number we pick is an illustration:
 
@@ -238,19 +241,19 @@ RETURN count(*) AS decisions,
        round(100.0 * sum(CASE WHEN d.confidence >= 0.8 THEN 1 ELSE 0 END) / count(*), 1) AS percent_confident
 ```
 
-With a confidence of 0.8 as the line, 254 of the 500 decisions, or 50.8%, were confident.
+With a confidence of 0.8 as the line, 246 of the 500 decisions, or 49.2%, were confident.
 
-## The Same Run Twice
+## The Same Run Four Times
 
-We ran the whole batch twice. The first run's decisions were deleted before the second and everything above comes from the second. Here are the two side by side:
+We ran the whole batch several times. Each run's decisions were deleted before the next and everything above comes from the last one. Here are the last four side by side:
 
-| | First run | Second run |
-|---|---|---|
-| Flagged | 267 | 268 |
-| Passed | 233 | 232 |
-| Flagged, not fraud | 96 | 97 |
-| Passed, fraud | 18 | 18 |
-| Confident (0.8 or more) | 246 | 254 |
+| | Run 1 | Run 2 | Run 3 | Run 4 |
+|---|---|---|---|---|
+| Flagged | 268 | 271 | 267 | 268 |
+| Passed | 232 | 229 | 233 | 232 |
+| Flagged, not fraud | 97 | 100 | 97 | 98 |
+| Passed, fraud | 18 | 18 | 19 | 19 |
+| Confident (0.8 or more) | 254 | 248 | 256 | 246 |
 
 To run the batch again from scratch, delete only the decisions and leave the transactions alone:
 
@@ -260,9 +263,9 @@ MATCH (d:Decision) DETACH DELETE d
 
 The full-run statement only picks up transactions that have no decision, so without this step a second run would find nothing to do.
 
-All nine statements from this chapter are also in `notebooks/06_run_all_500.ipynb`, which runs them one per cell and shows each result. The reset is the last one and is switched off by default. If the decisions are already stored, statement 2 stores 0, because it only picks up transactions that have no decision yet.
+The statements from this chapter, plus two checks, are also in `notebooks/06_run_all_500.ipynb`, which runs them one per cell and shows each result. The reset is the last one and is switched off by default. If the decisions are already stored, statement 2 stores 0, because it only picks up transactions that have no decision yet.
 
-The overall picture is stable and the details move. A transaction at the edge can land on either side and the five least-sure flags were completely different transactions each time (T0467, T0476 and T0020 led the first run's list, T0289, T0316 and T0359 the second's). All of them sat at 0.50 or 0.51. The transactions near the line move around and the ones far from it don't.
+The overall picture is stable and the details move. A transaction at the edge can land on either side and the five least-sure flags were mostly different transactions each time (T0289, T0316 and T0359 led the first list, T0267, T0445 and T0175 the second, T0307, T0378 and T0065 the third and T0114, T0173 and T0308 the fourth). Only T0017 turned up on two of the lists, the second and the third. All of them sat between 0.50 and 0.52. The transactions near the line move around and the ones far from it don't.
 
 That has a practical consequence. If you store decisions, treat them as a snapshot from one run of a service that can answer slightly differently the next time. The `model` and `latency_ms` properties on each `Decision` help you tell runs apart later.
 
@@ -272,16 +275,16 @@ The notebook's hosted sweep times a batch of 20 items at four levels of concurre
 
 | Concurrency | Run 1 (ms) | Run 2 (ms) | Median (ms) | Speedup |
 |---|---|---|---|---|
-| 1 | 5,118 | 4,438 | 4,778 | 1.0x |
-| 4 | 1,212 | 1,121 | 1,167 | 4.09x |
-| 8 | 703 | 693 | 698 | 6.85x |
-| 16 | 828 | 463 | 646 | 7.4x |
+| 1 | 5,491 | 5,456 | 5,473 | 1.0x |
+| 4 | 1,421 | 1,402 | 1,412 | 3.88x |
+| 8 | 804 | 755 | 780 | 7.02x |
+| 16 | 539 | 476 | 507 | 10.79x |
 
-There were no errors at any level. At a concurrency of 1, the 20 calls took about 240 milliseconds each, which gives us the number behind the estimate at the start of the chapter. The speedup is close to the concurrency at 4 and a little under it at 8, so most of the time really was waiting.
+There were no errors at any level. At a concurrency of 1, the 20 calls took about 274 milliseconds each, which gives us the number behind the estimate at the start of the chapter. The speedup is close to the concurrency at 4 and a little under it at 8, so most of the time really was waiting.
 
-The result at 16 needs a note. Twenty items on 16 workers still need two rounds, because the last four calls have to wait for workers to free up. If every call took the same time, the best possible speedup would be 10 times and the measured 7.4 falls short of that. Calls vary in length and the second round waits for its slowest call, but we didn't measure how much of the gap that explains. More workers than items buys nothing, because a batch of 20 can't use 32 threads.
+The results at 8 and 16 need a note. Twenty items on 16 workers still need two rounds, because the last four calls have to wait for workers to free up. If every call took the same time, the best possible speedup would be 10 times at 16 workers and about 6.7 times at 8 workers, which needs three rounds of 8, 8 and 4. The measured 10.79x and 7.02x are both above those limits, so the calls didn't all take the same time. The one-at-a-time run was probably slower per call than the others, but we didn't measure by how much. An earlier sweep gave 6.85x at 8 and 7.4x at 16, so these numbers move between runs and the limits are a guide, not a promise. Workers beyond the number of items buy nothing, because the pool never starts more threads than there are items.
 
-Back to the full run: 500 calls at about 240 milliseconds would take roughly 120 seconds one at a time. The measured 15.5 seconds at a concurrency of 8 is about 7.7 times faster, which is in line with the roughly 7 times the sweep showed at that level. The full run wasn't repeated, so treat that as one measurement and not a benchmark.
+Back to the full run: the sweep's roughly 7 times at a concurrency of 8 is below the almost 10 times we worked out for the full run, which is another sign that call times move between runs. The same statement took 15,076 milliseconds in an earlier run, close to the 14,172 above. We didn't time the full run enough to call it a benchmark, so treat it as a measurement and not a promise.
 
 ## What You'd Hit in Production
 
@@ -291,9 +294,9 @@ Back to the full run: 500 calls at about 240 milliseconds would take roughly 120
 
 **Rows arrive when everything is done.** The procedure returns once every call has finished, so a large batch against a slow endpoint takes that long before the first row appears. Keep batches to a size you're happy to wait for.
 
-**Batches have a ceiling.** At 10,000 items per call, a bigger graph goes in slices. The "no decision yet" filter in the full run makes that easy, because each pass picks up where the last stopped.
+**Batches have a ceiling.** At 10,000 items per call, a bigger graph goes in slices. Add `WITH t LIMIT 10000` after the `WHERE` in the full run, before the `collect`, and the "no decision yet" filter does the rest, because each pass picks up where the last stopped.
 
-**Decisions are data you now own.** The stored `Decision` nodes don't change when the service does. If you want fresh ones, delete the old `Decision` nodes first, as we did for the second run.
+**Decisions are data you now own.** The stored `Decision` nodes don't change when the service does. If you want fresh ones, delete the old `Decision` nodes first, as we did between runs.
 
 ## Going Further
 

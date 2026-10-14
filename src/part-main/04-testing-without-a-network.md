@@ -2,7 +2,7 @@
 
 ## The Problem with Testing a Network
 
-Chapter 3 made a list of promises. The function retries a timeout but not a 422. It waits 500 milliseconds before the second attempt and 1,000 before the third. It reports "after 3 attempts" when it gives up. It never lets a bug escape as an exception.
+Chapter 3 made a list of promises. The function retries a timeout but not a 422. It waits 500 milliseconds before the second attempt and 1,000 before the third. It reports "after 3 attempts" when it gives up.
 
 We showed the promises that Cypher can trigger on demand, such as a bad option or a blank state. The rest are about the network and you can't order up a network failure. A real timeout happens when it happens. A real 503 comes from a service having a bad day. If the only way to check the retry logic were to wait for those, we'd never know whether it worked until the day it mattered.
 
@@ -182,7 +182,7 @@ That's why there's a second layer. It runs the real function in the real databas
 
 ## The Live Notebook
 
-The notebook is `notebooks/04_decide_tests.ipynb` in the chapter's folder. It connects to your database with the Python driver and runs one `jev.decide` call per test, the same way a query of yours would. Each test prints PASS or FAIL and, at the end, everything is saved to a file, `results_decide.json`, so a run can be kept and compared.
+The notebook is `notebooks/04_decide_tests.ipynb` in the chapter's folder. It connects to your database with the Python driver and runs `jev.decide` calls the way a query of yours would. Each test prints its status and, at the end, everything is saved to a file, `results_decide.json`, so a run can be kept and compared.
 
 A few choices shape it:
 
@@ -195,7 +195,7 @@ This is the chapter 4 version. It tests what the function can do so far and late
 
 The first group of tests needs no key and makes no calls. It checks that the function is registered and that each kind of bad input produces a `validation:` error, no answers and zero attempts. That last part is how the notebook proves no request was made, without a fake. The function itself reports `attempts: 0`.
 
-The second group is the optional one. With the flag on, it makes five real calls to Jev on one transaction and checks four things: no call returned an error, each took exactly one attempt, the choice is one we offered and the `confidence` equals the margin between the two probabilities. It allows a gap of 0.02 in that last check, because Jev rounds its probabilities to two decimals.
+The second group is the optional one. With the flag on, it makes five real calls to Jev on one transaction and checks four things: no call returned an error, each took exactly one attempt, the choice is one we offered and the `confidence` equals the margin between the two probabilities. It allows a gap of 0.02 in that last check, because Jev rounds its probabilities to two decimals. The last two checks look at the first call and the transaction is a fixture with four of the eight properties, not one of the 500 nodes.
 
 ## Reading the Results
 

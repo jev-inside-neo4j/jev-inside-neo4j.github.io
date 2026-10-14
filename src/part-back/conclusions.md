@@ -6,7 +6,7 @@ We started with a graph that could answer questions about structure and none abo
 
 - **A function, `jev.decide`,** that takes a node's properties and some questions and returns an answer with probabilities, from Cypher.
 - **A procedure, `jev.decideAll`,** that does the same for many nodes at once, on a bounded pool, with results in input order.
-- **A suite of 68 tests** that need no network and two notebooks that check the real thing.
+- **A suite of 68 tests** that need no network and notebooks that check the real thing.
 - **500 stored decisions** from a hosted service and 500 from a local model, as nodes linked to the transactions they describe, ready to query.
 
 Each chapter contributed one lesson:
@@ -32,13 +32,13 @@ None of these is clever. Each is a small piece of structure put where a mistake 
 
 We measured a fair amount and it's worth being plain about what it supports.
 
-**The hosted service is close to repeatable, not exactly.** We ran the full set of 500 twice. The totals barely moved, 267 flags in the first run and 268 in the second, but the five least-sure flags were different transactions each time, all at 0.50 or 0.51. The transactions near the line move around and the ones far from it don't. If you store decisions, treat them as a snapshot.
+**The hosted service is close to repeatable, not exactly.** We ran the full set of 500 several times. Across the last four runs the flag totals ranged from 267 to 271, but the five least-sure flags were mostly different transactions each time, all between 0.50 and 0.52. The transactions near the line move around and the ones far from it don't. If you store decisions, treat them as a snapshot.
 
-**Concurrency paid off against the hosted service.** In the sweep of 20 items, 4 workers gave 4.09 times the speed of 1, 8 gave 6.85 times and 16 gave 7.4 times. The full run of 500 took 15,465 milliseconds at a concurrency of 8, where one at a time would have taken about two minutes by our estimate. Against the local model the picture was different: two workers gave about 2.2 times and more workers added nothing reliable.
+**Concurrency paid off against the hosted service.** In the sweeps of 20 items, 8 workers gave between 5.4 and 7.0 times the speed of 1 and 16 workers gave between 7.4 and 10.8 times. The full run of 500 took about 14.2 seconds at a concurrency of 8, where one at a time would have taken about two minutes by our estimate. Against the local model the picture was different: four workers gave the best result, about 2.8 times, and more than four was slower.
 
-**A small local model is a different judge.** With the same prompt and the same eight properties, the small local model (`tev1:0.8b`, served by Ollama) flagged 20 of the 500 and caught 16 of the 189 transactions labeled as fraud, where the hosted service flagged 268 and caught 171. The two agreed on 252 of 500. We haven't tried other prompts or models, so this shows how far apart the two setups are with this one prompt. It doesn't say what a local model can do. Its probabilities also came in only 16 distinct values, which we noted and didn't explain.
+**A small local model is a different judge.** With the same prompt and the same eight properties, the small local model (`tev1:0.8b`, served by Ollama) flagged 21 of the 500 and caught 16 of the 189 transactions labeled as fraud, where the hosted service flagged 268 and caught 170. The two agreed on 253 of 500. We haven't tried other prompts or models, so this shows how far apart the two setups are with this one prompt. It doesn't say what a local model can do. Its probabilities also came in only 15 distinct values, which we noted and didn't explain.
 
-**Timings from a repeated request mislead.** The local sweep sent the same 40 small requests again and again and ran at about 5 milliseconds per item. The full run, with 500 different transactions, ran at about 90 milliseconds per item at the same concurrency. We haven't found out why and it's a reminder to time the real workload.
+**Timings from a repeated request mislead.** The local sweep sent the same 40 small requests again and again and ran at about 4.7 milliseconds per item. The full run, with 500 different transactions, ran at about 129 milliseconds per item at the same concurrency, about 27 times slower. We haven't found out why and it's a reminder to time the real workload.
 
 **One thing we can't explain.** At several levels of local concurrency, the same batch took one of two speeds, one about twice the other, with no pattern we could see.
 

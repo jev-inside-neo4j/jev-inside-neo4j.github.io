@@ -20,6 +20,8 @@ But chapter 7 uses the same function against a local model and that needs a diff
 RETURN jev.decide($state, $questions, {url: 'http://localhost:11434/v1/systemone'})
 ```
 
+The address must be an `http` or `https` URL with a host. Anything else, such as an `ftp` address, comes back as a `validation` error.
+
 The moment the address can change, the question of what to do with the key becomes a real one.
 
 ## The Flaw
@@ -90,17 +92,17 @@ The result now says what happened. A new field in the metadata, `authenticated`,
       type: "choice",
       choice: "Pass",
       probabilities: {
-        Pass: 0.91,
-        Flag: 0.09
+        Pass: 0.92,
+        Flag: 0.08
       },
-      confidence: 0.82
+      confidence: 0.84
     }
   },
   error_message: null,
   metadata: {
-    authenticated: TRUE,
+    authenticated: true,
     model: "jev-latest",
-    latency_ms: 312,
+    latency_ms: 361,
     attempts: 1
   }
 }
@@ -125,9 +127,9 @@ RETURN jev.decide(
   answers: null,
   error_message: "io: ConnectException reaching 127.0.0.1:9 (after 1 attempt)",
   metadata: {
-    authenticated: FALSE,
+    authenticated: false,
     model: "jev-latest",
-    latency_ms: 0,
+    latency_ms: 1,
     attempts: 1
   }
 }
@@ -142,15 +144,15 @@ Leave `max_retries` at its default and the same call makes three attempts, with 
   answers: null,
   error_message: "io: ConnectException reaching 127.0.0.1:9 (after 3 attempts)",
   metadata: {
-    authenticated: FALSE,
+    authenticated: false,
     model: "jev-latest",
-    latency_ms: 1515,
+    latency_ms: 1511,
     attempts: 3
   }
 }
 ```
 
-The call took 1,515 milliseconds, just over the 500 plus 1,000 milliseconds of waiting. That's the backoff arithmetic from chapter 3 showing up in a real measurement.
+The call took 1,511 milliseconds, just over the 500 plus 1,000 milliseconds of waiting. That's the backoff arithmetic from chapter 3 showing up in a real measurement.
 
 The statements from this chapter are also in `notebooks/05_key_demos.ipynb`, which runs them one per cell and shows each result.
 
@@ -181,15 +183,15 @@ Here's what the notebook recorded:
 
 The two INFO rows are the best evidence. For the address that starts with `https://api.typesafe.ai@`, the error says the function was reaching `lookalike.invalid`. That's what the parser decided the host was and since it isn't the real host, no key was sent. The text checks we rejected earlier would have sent it.
 
-The rest of the run was clean as well. The notebook recorded 25 passes and 3 observations. That includes the closed-port checks, which show 1,516 ms for three attempts and the hosted section: five real calls, no errors, the key sent each time and one attempt each.
+The rest of the run was clean as well. With the hosted section switched on, the notebook recorded 25 passes and 3 observations. That includes the closed-port checks, which show 1,515 ms for three attempts and the hosted section: five real calls, no errors, the key sent each time and one attempt each.
 
-One more detail from that hosted run. The fixture is the midnight cash withdrawal from chapter 4 and this time Jev chose Pass, with `confidence 0.08, margin 0.08000000000000002`. In chapter 4 the same fixture gave Flag with a margin of 0.04. The transaction is a genuinely ambiguous one and Jev's answers on it aren't guaranteed to be the same from one run to the next.
+One more detail from that hosted run. The fixture is the midnight cash withdrawal from chapter 4 and this time Jev chose Flag again, with `confidence 0.06, margin 0.06000000000000005`. In chapter 4 the same fixture gave Flag with a margin of 0.04. The transaction is a genuinely ambiguous one and Jev's answers on it aren't guaranteed to be the same from one run to the next.
 
 ## What You'd Hit in Production
 
 **Point `url` at a service you trust and check what it's for.** The rule protects the Jev key. It doesn't make every endpoint safe to call. A request to a local server or any other address still carries your transaction's data, only without the key.
 
-**Notice `authenticated: false`.** If you expect a call to go to Jev and see false, the address is wrong. It may be a typo, a trailing difference in the host or `http` instead of `https`.
+**Notice `authenticated: false`.** If a call you expected to reach Jev comes back with `authenticated: false` and no `no_api_key` error, the address is wrong. It may be a typo, a trailing difference in the host or `http` instead of `https`.
 
 **A missing key shows up only for the real endpoint.** A `no_api_key` error means the call was heading for Jev and the key wasn't found. If you see it, check the environment variable and the JVM option, as in chapter 2.
 

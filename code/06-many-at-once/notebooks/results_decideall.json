@@ -1,6 +1,6 @@
 {
   "notebook": "06_decideall_tests",
-  "saved_at": "2026-10-10T02:24:50",
+  "saved_at": "2026-10-14T13:28:13",
   "results": [
     {
       "test": "procedure jev.decideAll is registered",
@@ -105,12 +105,12 @@
     {
       "test": "real Jev sweep: speedup at each level",
       "status": "INFO",
-      "detail": "1: 1.0x, 4: 4.09x, 8: 6.85x, 16: 7.4x"
+      "detail": "1: 1.0x, 4: 3.88x, 8: 7.02x, 16: 10.79x"
     },
     {
       "test": "real Jev sweep: paired speedup at each level",
       "status": "INFO",
-      "detail": "1: 1.0x, 4: 4.09x, 8: 6.84x, 16: 7.88x"
+      "detail": "1: 1.0x, 4: 3.88x, 8: 7.03x, 16: 10.83x"
     }
   ],
   "timings": {
@@ -118,49 +118,49 @@
       {
         "concurrency": 1,
         "repeat": 0,
-        "wall_ms": 5117.548875001376,
+        "wall_ms": 5490.546707995236,
         "errors": 0
       },
       {
         "concurrency": 4,
         "repeat": 0,
-        "wall_ms": 1212.1217909989355,
+        "wall_ms": 1421.205958002247,
         "errors": 0
       },
       {
         "concurrency": 8,
         "repeat": 0,
-        "wall_ms": 703.34479200028,
+        "wall_ms": 804.172332995222,
         "errors": 0
       },
       {
         "concurrency": 16,
         "repeat": 0,
-        "wall_ms": 827.7882080001291,
+        "wall_ms": 539.4716250011697,
         "errors": 0
       },
       {
         "concurrency": 1,
         "repeat": 1,
-        "wall_ms": 4438.109708000411,
+        "wall_ms": 5455.552542000078,
         "errors": 0
       },
       {
         "concurrency": 4,
         "repeat": 1,
-        "wall_ms": 1121.481499998481,
+        "wall_ms": 1402.108791997307,
         "errors": 0
       },
       {
         "concurrency": 8,
         "repeat": 1,
-        "wall_ms": 692.6826670023729,
+        "wall_ms": 755.2052499959245,
         "errors": 0
       },
       {
         "concurrency": 16,
         "repeat": 1,
-        "wall_ms": 463.4131659986451,
+        "wall_ms": 475.5154579906957,
         "errors": 0
       }
     ]

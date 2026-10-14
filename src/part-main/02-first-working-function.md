@@ -28,7 +28,7 @@ A parameter declared as `Object` accepts any of these, which is how our `state` 
 
 ## The Project
 
-The project is small. Five files and a pom. You'll find them in the `code` folder of the book's repository:
+The project is small: five Java files, a pom, a Cypher script and a notebook. You'll find them in the `code` folder of the book's repository:
 
 ```
 code/02-first-working-function/
@@ -160,7 +160,7 @@ For our first transaction the request body looks like this:
 }
 ```
 
-A choice question takes its options as a map of label to description. A score question takes its levels as an ordered list and mixing the two shapes is an error the API rejects. We don't check for that yet. Chapter 3 does.
+A choice question takes its options under the `criteria` key, as a map of label to description. A score question takes its levels as an ordered list and mixing the two shapes is an error the API rejects. We don't check for that yet. Chapter 3 does.
 
 Sending the request is the job of `HttpTransport`, an interface with a single method:
 
@@ -201,13 +201,13 @@ return result(TypeNormalizer.fromJson(answers), model, started);
 
 Build the request, send it, check the status, pull out the `answers` and normalize them. The result is a map with the answers, an `error_message` (always empty in this version) and some `metadata`.
 
-The only option this version reads is `model`. If you don't give one, it uses `jev-latest`.
+The only setting this version reads from the `options` argument is `model`. If you don't give one, it uses `jev-latest`.
 
-## The Data Goes In
+## The Data Go In
 
 Before the first call we need something to decide about. The repository you cloned in chapter 1 includes a file, `code/data/transactions.csv`, with 500 transactions. Copy that file into the import folder of your Neo4j Desktop database. Desktop has an option to open a database's folders and the import folder is one of them.
 
-Then load it:
+Then load it. Run these two statements one at a time:
 
 ```cypher
 CREATE CONSTRAINT txn_id IF NOT EXISTS
@@ -269,28 +269,28 @@ This is what came back:
       type: "choice",
       choice: "Pass",
       probabilities: {
-        Pass: 0.91,
-        Flag: 0.09
+        Pass: 0.94,
+        Flag: 0.06
       },
-      confidence: 0.82
+      confidence: 0.88
     }
   },
   error_message: null,
   metadata: {
     model: "jev-latest",
-    latency_ms: 349
+    latency_ms: 466
   }
 }
 ```
 
 Reading it from the top:
 
+- **`type`** repeats the kind of question we asked.
 - **`choice`** is the option Jev picked. Here it passed the transaction.
 - **`probabilities`** says how likely Jev thinks each option is. They add up to 1.
-- **`confidence`** is the gap between the two probabilities: 0.91 minus 0.09 is 0.82. A gap of 0 would be a coin flip and a gap of 1 would be certainty. It isn't the probability of being right, which is the 0.91 next to `Pass`.
-- **`type`** repeats the kind of question we asked.
+- **`confidence`** is the gap between the two probabilities: 0.94 minus 0.06 is 0.88. A gap of 0 would be a coin flip and a gap of 1 would be certainty. It isn't the probability of being right, which is the 0.94 next to `Pass`.
 - **`error_message`** is empty, because the call worked.
-- **`metadata`** says which model answered and how long the call took, 349 milliseconds here. In this first version it has two fields. Chapters 3 and 5 add `attempts` and `authenticated`.
+- **`metadata`** says which model answered and how long the call took, 466 milliseconds here. In this first version it has two fields. Chapters 3 and 5 add `attempts` and `authenticated`.
 
 For the record, the label we hid says T0001 isn't fraud, so Pass was the right call.
 
@@ -300,7 +300,7 @@ The same statements are also in `notebooks/02_load_and_call.ipynb`, which runs t
 
 ## What You'd Hit in Production
 
-**The JAR needs a restart.** Neo4j loads plugins when it starts. Copy in a new JAR and nothing changes until you restart the database. Two JARs that both define `jev.decide` will also clash, so remove the old one first. Every chapter's JAR has the same name, so copying a new one over the old one replaces it.
+**The JAR needs a restart.** Neo4j loads plugins when it starts. Copy in a new JAR and nothing changes until you restart the database. Two JARs that both define `jev.decide` will clash. Every chapter's JAR has the same name, so copying a new one over the old one replaces it and only one is ever installed.
 
 **The allowlist.** Without `jev.*` in the procedure allowlist, Neo4j refuses to run the function and the failure is easy to mistake for a bug in the code. Check the allowlist first.
 
@@ -308,7 +308,7 @@ The same statements are also in `notebooks/02_load_and_call.ipynb`, which runs t
 
 **A failure fails the whole query.** In this version, a bad key, a network error or a timeout raises an error. Run the function over 500 nodes and one failure stops the lot. That's the lesson of the next chapter.
 
-**A typo is silently ignored.** Pass `{modle: 'x'}` as the options and the function won't complain. It simply uses the default model. The same chapter fixes that too.
+**A typo is silently ignored.** Pass `{modle: 'x'}` as the `options` argument and the function won't complain. It simply uses the default model. The same chapter fixes that too.
 
 ## Going Further
 

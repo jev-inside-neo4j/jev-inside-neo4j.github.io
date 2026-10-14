@@ -20,7 +20,7 @@ RETURN id, jev.decide(
 
 The third row has no transaction behind it, so there's no real state to decide about. With the chapter 2 version, a failure like that raises an error and the whole query fails. You get no answers at all, not even for the transactions that were fine. Scale this to 500 nodes and one bad property, one slow response or one dropped connection throws away everything the query has already paid for.
 
-The cause is a design choice. In Cypher, an error in a function stops the statement. That's right for a built-in like `toInteger`, where a bad value is a bug in your query. It's wrong for a call to a remote service, where failure is a normal event.
+The cause is a design choice. In Cypher, an error in a function stops the statement. That's right for a built-in like `date`, where text that isn't a date is a bug in your query. It's wrong for a call to a remote service, where failure is a normal event.
 
 ## The Rule
 
@@ -66,7 +66,7 @@ RETURN category, count(*) AS n
 
 The cheapest failure is the one that never leaves the database. Before any request is sent, the function checks three things.
 
-**1. The options.** The third argument is checked against a short list of known names: `model`, `connect_timeout_ms`, `request_timeout_ms` and `max_retries`. An unknown name is an error, not something to ignore. In chapter 2 we noted that `{modle: 'x'}` was silently dropped and the default model used instead. Now it isn't:
+**1. The `options` argument.** The third argument is checked against a short list of known names: `model`, `connect_timeout_ms`, `request_timeout_ms` and `max_retries`. An unknown name is an error, not something to ignore. In chapter 2 we noted that `{modle: 'x'}` was silently dropped and the default model used instead. Now it isn't:
 
 ```cypher
 RETURN jev.decide(
@@ -92,11 +92,11 @@ RETURN jev.decide(
 }
 ```
 
-The message names the bad option and lists the good ones. Note that `model` is null in the metadata. The options are the first thing read, so when they're wrong there's no model to report.
+The message names the bad option and lists the good ones. Note that `model` is null in the metadata. The `options` argument is the first thing read, so when it's wrong there's no model to report.
 
 The numeric options have ranges too. Timeouts must be whole numbers and `max_retries` must be between 0 and 5.
 
-**2. The questions.** `QuestionValidator` enforces the shapes from chapter 2. The map must not be empty and each question needs a `type` and `instructions`. A choice question needs its criteria as a map of label to description, with between 1 and 255 labels. A score question needs an ordered list of 2 to 10 level descriptions. Mixing the two shapes is the most common mistake and the API answers it with an HTTP 422, so we catch it first:
+**2. The questions.** `QuestionValidator` enforces the shapes from chapter 2. The map must not be empty and each question needs a `type` and `instructions`. A choice question needs its criteria as a map of label to description, with between 1 and 255 labels. A score question needs an ordered list of 2 to 10 level descriptions. These limits come from the validator's code and the notebooks don't push against them. Mixing the two shapes is the most common mistake and the API answers it with an HTTP 422, so we catch it first:
 
 ```cypher
 RETURN jev.decide(
@@ -123,13 +123,28 @@ RETURN jev.decide(
 
 The message starts with the question's name, `decision`, so with several questions you know which one to fix. Question types other than choice and score are checked only for `type` and `instructions`. The API decides which other types exist, so we don't second-guess it.
 
-**3. The state.** A null state, or text that's blank, is rejected. So is anything JSON can't carry, such as NaN or infinity, with the path to the bad value, as in chapter 2:
+**3. The state.** A null state, or text that's blank, is rejected. So is anything JSON can't carry, such as NaN or infinity, with the path to the bad value, as in chapter 2. Blank text is the easiest one to see:
+
+```cypher
+RETURN jev.decide(
+  '   ',
+  {decision: {
+     type: 'choice',
+     instructions: 'Should this transaction be flagged or passed?',
+     criteria: {Flag: 'Potential fraud.', Pass: 'Likely legitimate.'}
+  }}
+) AS result
+```
 
 ```
 {
   answers: null,
   error_message: "validation: state must not be blank",
-  metadata: { model: "jev-latest", latency_ms: 0, attempts: 0 }
+  metadata: {
+    model: "jev-latest",
+    latency_ms: 0,
+    attempts: 0
+  }
 }
 ```
 
@@ -156,9 +171,9 @@ Between attempts the function waits and the wait doubles each time: 500 millisec
 sleeper.sleep(BACKOFF_MS << (attempt - 1));
 ```
 
-Doubling gives a struggling service room to recover instead of hitting it again immediately. The defaults are a 5 second connect timeout, a 15 second request timeout and 2 retries, so up to 3 attempts. You can change any of them in the options. `max_retries` can be 0 if you'd rather fail fast.
+Doubling gives a struggling service room to recover instead of hitting it again immediately. The defaults are a 5 second connect timeout, a 15 second request timeout and 2 retries, so up to 3 attempts. These come from the code, not from a measurement. You can change any of them in the `options` argument. `max_retries` can be 0 if you'd rather fail fast.
 
-Those defaults have a cost worth knowing about. In the worst case every attempt runs into the request timeout and one call can take close to 47 seconds: three waits of 15 seconds plus the two pauses. For a single call that's fine. For a thousand calls one after another it isn't and chapter 6 deals with that.
+Those defaults have a cost worth knowing about. In the worst case every attempt runs into the request timeout and one call can take close to 47 seconds by our arithmetic: three waits of 15 seconds plus the two pauses. We haven't timed that case. For a single call that's fine. For a thousand calls one after another it isn't and chapter 6 deals with that.
 
 The `sleeper` in that line is a small interface:
 
@@ -175,15 +190,15 @@ When the retries run out, the message says how many attempts were made. A single
 
 ## A Safety Net
 
-Validation and the HTTP handling cover the failures we can predict. The rest is covered by a last catch around the whole call. Any unexpected exception, which in practice means a bug in our own code, becomes an `internal` error with the exception's class and message.
+Validation and the HTTP handling cover the failures we can predict. The rest is covered by a last catch around the whole call. Any unexpected exception, which in practice means a bug in our own code, becomes an `internal` error with the exception's class and message. We haven't triggered one in the notebooks, because it takes a bug to produce it.
 
 This is the part that makes "never throws" true instead of hopeful. Without it, the rule holds only as long as we've thought of everything. With it, even a mistake we haven't found yet arrives as a value in the result and one bad row still can't take the others down.
 
-There's one exception to carrying on and it's deliberate. If the thread is interrupted, the function sets the interrupt flag again and returns an `interrupted` error. The interrupt is the database asking the work to stop, for instance when someone cancels a query. Swallowing it would make a long call impossible to cancel.
+There's one exception to carrying on and it's deliberate. If the thread is interrupted, the function sets the interrupt flag again and returns an `interrupted` error. The interrupt is the database asking the work to stop, for instance when someone cancels a query. Swallowing it would make a long call impossible to cancel. We haven't cancelled a query in the notebooks to see this error, so it describes what the code does.
 
 ## Errors That Say Where
 
-Two small habits make the errors easier to act on. First, they name the host. A timeout reads "no response from api.typesafe.ai within the configured limits" and an I/O failure names the host it was reaching, so you don't have to guess which service was involved. Second, an HTTP error includes the start of the response body, cut to 300 characters, because the service's own explanation is often the quickest route to the fix.
+Two small habits make the errors easier to act on. First, they name the host. A timeout reads "no response from api.typesafe.ai within the configured limits" and an I/O failure names the host it was reaching, so you don't have to guess which service was involved. These message texts come from the code and the text after each prefix can change. Second, an HTTP error includes the start of the response body, cut to 300 characters, because the service's own explanation is often the quickest route to the fix.
 
 ## Seeing It Work
 

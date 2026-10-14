@@ -12,7 +12,7 @@ Neo4j -> export -> script -> model -> script -> import -> Neo4j
 
 It works, but it has costs that show up every time:
 
-- **The data leaves the database.** Every export is a copy and every copy needs somewhere to live and someone to look after it.
+- **The data leave the database.** Every export is a copy and every copy needs somewhere to live and someone to look after it.
 - **The glue code is yours.** Retries, timeouts, rate limits and bad responses get solved again in every project, usually the second time something breaks.
 - **The answers arrive detached.** They come back as a file and have to be matched to the right nodes before they're any use.
 - **The decision isn't part of the query.** You can't ask a question about your graph and have a model's judgment as one step in the middle of it.
@@ -31,7 +31,7 @@ The three arguments are simple:
 
 - **`state`** describes the thing to decide about. In our case it's a map of a node's properties.
 - **`questions`** says what to decide. A *choice* question picks one option from a set of labeled options. A *score* question rates the state against an ordered list of levels.
-- **`options`** is optional and sets things like the model, the endpoint and the timeouts.
+- **`options`** is optional and sets things like the model, the URL and the timeouts.
 
 The function returns one map with three parts: the `answers` (with a probability for each option of a choice question), an `error_message` and some `metadata` about the call.
 
@@ -64,6 +64,8 @@ The dataset is 500 synthetic transactions generated with a fixed random seed, so
 
 Each node also carries three properties that the function never sees: `scenario`, `true_p` and `is_fraud`. These are the generator's answers. They're stored with the data so we can check the decisions later and they never become part of a request.
 
+Each node also has a `txn_id`, which identifies it and isn't one of the eight properties the function sees.
+
 The transactions come from scenarios such as routine spending, a traveler far from home, a late-night cash withdrawal and a card being tested with tiny purchases. Each scenario has a latent probability of fraud and the label is drawn from it. A routine purchase is almost never fraud and a clear case of fraud almost always is, while a late-night withdrawal sits in the middle. This is deliberate. A real judge has to live with cases that are genuinely ambiguous and so does ours.
 
 The graph model for the example is:
@@ -75,9 +77,14 @@ The graph model for the example is:
   -[:HAS_DECISION]->
 (:Decision {choice, confidence, p_flag, p_pass,
             latency_ms, attempts, model})
+
+(:Transaction)
+  -[:HAS_LOCAL_DECISION]->
+(:LocalDecision {choice, confidence, p_flag, p_pass, margin,
+                 latency_ms, attempts, model})
 ```
 
-Chapter 6 creates the `Decision` nodes, when we store the results of a full run.
+Chapter 6 creates the `Decision` nodes, when we store the results of a full run. Chapter 7 adds a second set, the `LocalDecision` nodes, from a local model. They carry a `margin` property, which puts the two sources' confidence on one scale.
 
 ## A Preview of the Result
 
@@ -117,21 +124,21 @@ And this is the result, from a real run:
       type: "choice",
       choice: "Pass",
       probabilities: {
-        Pass: 0.91,
-        Flag: 0.09
+        Pass: 0.94,
+        Flag: 0.06
       },
-      confidence: 0.82
+      confidence: 0.88
     }
   },
   error_message: null,
   metadata: {
     model: "jev-latest",
-    latency_ms: 349
+    latency_ms: 466
   }
 }
 ```
 
-Jev passed the transaction, with 91% of the probability on Pass and 9% on Flag. We unpack the other fields in chapter 2.
+Jev passed the transaction, with 94% of the probability on Pass and 6% on Flag. We unpack the other fields in chapter 2.
 
 Once the decisions are stored, a question that used to need an export and a script is a single query:
 
@@ -160,7 +167,7 @@ jev-inside-neo4j.github.io/
     03-.../                       and one folder for each chapter after that
 ```
 
-Each chapter that has code gets a folder in `code` with the same name as the chapter. Every folder is a complete project that builds on its own, so you can start from any chapter. The JAR has the same name in every folder, which means a newer one simply replaces the older one.
+Each chapter that has code gets a folder in `code` with the same name as the chapter. Every folder is a complete project that builds on its own, so you can start from any chapter once the data are loaded. The JAR has the same name in every folder, which means a newer one simply replaces the older one.
 
 Cloning the repository, building a chapter and running the notebooks are covered in "Setting Up" at the end of this chapter. A table of every file you can run is in "What's in the Repository", right after it.
 
@@ -171,7 +178,7 @@ Each chapter takes one lesson from the build and adds the code that goes with it
 - **Chapter 2, A First Working Function.** The project setup, how Neo4j treats the types that cross the boundary and the first live call.
 - **Chapter 3, Failures as Data.** Why the function returns an error instead of throwing and the categories of error it can return.
 - **Chapter 4, Testing Without a Network.** A fake transport, retry and backoff tests and live notebooks as a second layer.
-- **Chapter 5, Keeping the Key Safe.** A leak we found while testing and the rule that closed it.
+- **Chapter 5, Keeping the Key Safe.** A flaw we found while testing and the rule that closed it.
 - **Chapter 6, Many at Once.** The batch procedure, a bounded thread pool and what the timings show.
 - **Chapter 7, Running It Locally.** The same function against a local model and what changes.
 
@@ -181,6 +188,7 @@ Each chapter takes one lesson from the build and adds the code that goes with it
 - **A Java development kit and Maven.** We build the plugin ourselves.
 - **A Jev API key.** Chapter 5 shows how the function reads it and where it sends it.
 - **Git or GitHub Desktop.** To clone the book's repository.
+- **Python and Jupyter.** The notebooks run in classic Jupyter, installed in a Python virtual environment. "Setting Up" shows how.
 - **Optionally, Ollama.** Chapter 7 uses it to run a small model on your own machine.
 
 The versions of every tool and library are pinned in the code files that come with the book.
@@ -243,13 +251,14 @@ You should see `jev.decide`. From chapter 6 on, you'll also see `jev.decideAll` 
 
 Each chapter's JAR has the same name, so moving to another chapter means stopping the database, replacing the JAR in `plugins` with the new one and starting the database again. Only one chapter's JAR can be installed at a time.
 
-**5. Load the data.** Copy `code/data/transactions.csv` into the database's `import` folder. You'll find it with `plugins` and the other folders behind the Open Folder button. The chapter 2 notebook `02_load_and_call.ipynb`, loads the file and makes the first call. Run it before any later chapter, because every later chapter uses the 500 transactions it creates.
+**5. Load the data.** Copy `code/data/transactions.csv` into the database's `import` folder. You'll find it with `plugins` and the other folders behind the Open Folder button. The chapter 2 notebook, `02_load_and_call.ipynb`, loads the file and makes the first call. Run it before any later chapter, because every later chapter uses the 500 transactions it creates.
 
 **6. Set up the notebooks.** The notebooks run in Jupyter and connect to your database over Bolt. Create a virtual environment, activate it and install Jupyter in it:
 
 ```shell
 python3 -m venv myenv
 source myenv/bin/activate
+pip install notebook
 ```
 
 Then set the connection details in the same terminal, before you launch Jupyter, because the notebooks read them from the environment:
@@ -286,24 +295,24 @@ Every file you run is in a chapter's folder under `code`, apart from the data fi
 | File | Chapter | What it does | Needs |
 |---|---|---|---|
 | `code/data/transactions.csv` | 2 | The 500 synthetic transactions | Copied into the `import` folder |
-| `load-and-call.cypher` | 2 | Loads the transactions and makes the first call | Plugin |
-| `notebooks/02_load_and_call.ipynb` | 2 | The same statements, one per cell | Plugin, Jupyter |
-| `failure-demos.cypher` | 3 | Triggers each kind of failure and shows the error | Plugin, data loaded |
-| `notebooks/03_failure_demos.ipynb` | 3 | The same statements, one per cell | Plugin, data loaded, Jupyter |
-| `notebooks/04_decide_tests.ipynb` | 4 | Live tests of `jev.decide`, including retries and timings | Plugin, key, Jupyter |
+| `load-and-call.cypher` | 2 | Loads the transactions and makes the first call | Plugin, key |
+| `notebooks/02_load_and_call.ipynb` | 2 | The same statements, one per cell | Plugin, key, Jupyter |
+| `failure-demos.cypher` | 3 | Triggers each kind of failure and shows the error | Plugin, key, data loaded |
+| `notebooks/03_failure_demos.ipynb` | 3 | The same statements, one per cell | Plugin, key, data loaded, Jupyter |
+| `notebooks/04_decide_tests.ipynb` | 4 | Live tests of `jev.decide`: validation and real calls, with timings | Plugin, Jupyter, key (optional) |
 | `notebooks/results_decide.json` | 4 | Saved results of the last run | Written by the notebook |
-| `key-demos.cypher` | 5 | Shows where the key is sent and where it isn't | Plugin, key |
-| `notebooks/05_key_demos.ipynb` | 5 | The same statements, one per cell | Plugin, key, Jupyter |
-| `notebooks/05_decide_tests.ipynb` | 5 | Live tests, now including the key rules | Plugin, key, Jupyter |
+| `key-demos.cypher` | 5 | Shows where the key is sent and where it isn't | Plugin, key, data loaded |
+| `notebooks/05_key_demos.ipynb` | 5 | The same statements, one per cell | Plugin, key, data loaded, Jupyter |
+| `notebooks/05_decide_tests.ipynb` | 5 | Live tests, now including the closed port and the key rules | Plugin, Jupyter, key (optional) |
 | `notebooks/results_decide.json` | 5 | Saved results of the last run | Written by the notebook |
 | `run-all-500.cypher` | 6 | Decides all 500 transactions with `jev.decideAll` and stores `Decision` nodes | Plugin, key, data loaded |
 | `notebooks/06_run_all_500.ipynb` | 6 | The same statements, one per cell | Plugin, key, data loaded, Jupyter |
-| `notebooks/06_decideall_tests.ipynb` | 6 | Live tests of the batch procedure and the concurrency sweep | Plugin, key, Jupyter |
+| `notebooks/06_decideall_tests.ipynb` | 6 | Live tests of the batch procedure and the concurrency sweep | Plugin, Jupyter, key (optional) |
 | `notebooks/results_decideall.json` | 6 | Saved results of the last run | Written by the notebook |
-| `run-local-500.cypher` | 7 | Decides all 500 transactions with the local model and stores `LocalDecision` nodes | Plugin, Ollama, the chapter 6 decisions |
-| `notebooks/07_run_local_500.ipynb` | 7 | The same statements, one per cell | Plugin, Ollama, the chapter 6 decisions, Jupyter |
-| `notebooks/07_decide_tests.ipynb` | 7 | Live tests against Jev and the local model | Plugin, key, Ollama, Jupyter |
-| `notebooks/07_decideall_tests.ipynb` | 7 | Live batch tests against Jev and the local model, with the local sweep | Plugin, key, Ollama, Jupyter |
+| `run-local-500.cypher` | 7 | Decides all 500 transactions with the local model and stores `LocalDecision` nodes | Plugin, Ollama, data loaded, the chapter 6 decisions |
+| `notebooks/07_run_local_500.ipynb` | 7 | The same statements, one per cell | Plugin, Ollama, data loaded, the chapter 6 decisions, Jupyter |
+| `notebooks/07_decide_tests.ipynb` | 7 | Live tests against Jev and the local model | Plugin, Ollama, Jupyter, key (optional) |
+| `notebooks/07_decideall_tests.ipynb` | 7 | Live batch tests against Jev and the local model, with the local sweep | Plugin, Ollama, Jupyter, key (optional) |
 | `notebooks/results_decide.json` and `notebooks/results_decideall.json` | 7 | Saved results of the last runs | Written by the notebooks |
 
 The results files are overwritten each time you run their notebook. The Java source is in each folder's `src` directory and the chapters explain it as it grows.

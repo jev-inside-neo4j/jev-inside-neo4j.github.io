@@ -1,6 +1,6 @@
 {
   "notebook": "07_decide_tests",
-  "saved_at": "2026-10-10T01:23:06",
+  "saved_at": "2026-10-14T14:00:12",
   "results": [
     {
       "test": "function jev.decide is registered",
@@ -80,7 +80,7 @@
     {
       "test": "closed port: backoff waits happened (0.5 s + 1 s)",
       "status": "PASS",
-      "detail": "1511 ms"
+      "detail": "1516 ms"
     },
     {
       "test": "key rule: not sent to a look-alike (suffix on the real name)",
@@ -125,7 +125,7 @@
     {
       "test": "real Jev: the choice is one we offered",
       "status": "PASS",
-      "detail": "Flag"
+      "detail": "Pass"
     },
     {
       "test": "real Jev: confidence is the margin between the two probabilities",
@@ -135,7 +135,7 @@
     {
       "test": "real Jev: wall time per call (ms)",
       "status": "INFO",
-      "detail": "min 204, median 214, max 343"
+      "detail": "min 215, median 250, max 577"
     },
     {
       "test": "Ollama is running",
@@ -225,12 +225,12 @@
     {
       "test": "local model: cold call (ms)",
       "status": "INFO",
-      "detail": "574"
+      "detail": "881"
     },
     {
       "test": "local model: warm calls, min / median / max (ms)",
       "status": "INFO",
-      "detail": "16 / 17 / 21"
+      "detail": "21 / 22 / 31"
     },
     {
       "test": "local model: median Bolt and Cypher overhead (ms)",
@@ -265,7 +265,7 @@
     {
       "test": "Ollama stopped: fails fast without retries",
       "status": "PASS",
-      "detail": "3 ms"
+      "detail": "2 ms"
     },
     {
       "test": "Ollama stopped: three attempts with default retries",
@@ -275,37 +275,37 @@
   ],
   "timings": {
     "real_jev_wall_ms": [
-      343.3,
-      212.5,
-      204.3,
-      214.1,
-      215.3
+      334.3,
+      250.2,
+      577.0,
+      215.3,
+      233.8
     ],
     "local_wall_ms": [
-      574.0,
-      20.7,
-      17.9,
-      18.0,
-      17.7,
-      16.6,
-      16.7,
-      18.0,
-      16.3,
-      16.4,
-      16.7
+      880.6,
+      29.0,
+      30.4,
+      31.0,
+      26.7,
+      22.1,
+      21.9,
+      21.1,
+      21.4,
+      21.2,
+      21.2
     ],
     "local_function_ms": [
-      565,
-      14,
-      12,
-      12,
-      12,
-      11,
-      11,
-      12,
-      11,
-      11,
-      12
+      867,
+      18,
+      18,
+      19,
+      19,
+      16,
+      17,
+      16,
+      16,
+      16,
+      16
     ]
   }
 }

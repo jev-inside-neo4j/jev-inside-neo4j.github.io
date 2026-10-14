@@ -1,6 +1,6 @@
 {
   "notebook": "04_decide_tests",
-  "saved_at": "2026-10-10T00:50:07",
+  "saved_at": "2026-10-14T13:03:27",
   "results": [
     {
       "test": "function jev.decide is registered",
@@ -65,26 +65,26 @@
     {
       "test": "real Jev: the choice is one we offered",
       "status": "PASS",
-      "detail": "Flag"
+      "detail": "Pass"
     },
     {
       "test": "real Jev: confidence is the margin between the two probabilities",
       "status": "PASS",
-      "detail": "confidence 0.04, margin 0.040000000000000036"
+      "detail": "confidence 0.08, margin 0.08000000000000002"
     },
     {
       "test": "real Jev: wall time per call (ms)",
       "status": "INFO",
-      "detail": "min 217, median 235, max 550"
+      "detail": "min 239, median 263, max 284"
     }
   ],
   "timings": {
     "real_jev_wall_ms": [
-      550.3,
-      235.1,
-      226.8,
-      217.4,
-      270.9
+      263.1,
+      238.9,
+      284.3,
+      272.7,
+      248.0
     ]
   }
 }

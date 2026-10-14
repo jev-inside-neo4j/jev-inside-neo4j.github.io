@@ -1,6 +1,6 @@
 {
   "notebook": "07_decideall_tests",
-  "saved_at": "2026-10-10T01:26:59",
+  "saved_at": "2026-10-14T14:05:15",
   "results": [
     {
       "test": "procedure jev.decideAll is registered",
@@ -105,12 +105,12 @@
     {
       "test": "real Jev sweep: speedup at each level",
       "status": "INFO",
-      "detail": "1: 1.0x, 4: 4.04x, 8: 6.6x, 16: 10.05x"
+      "detail": "1: 1.0x, 4: 3.72x, 8: 5.43x, 16: 9.74x"
     },
     {
       "test": "real Jev sweep: paired speedup at each level",
       "status": "INFO",
-      "detail": "1: 1.0x, 4: 4.04x, 8: 6.6x, 16: 10.09x"
+      "detail": "1: 1.0x, 4: 3.73x, 8: 5.46x, 16: 9.75x"
     },
     {
       "test": "Ollama is running",
@@ -185,22 +185,22 @@
     {
       "test": "sweep: median wall time (ms) at each level",
       "status": "INFO",
-      "detail": "1: 405, 2: 185, 4: 188, 8: 263, 16: 181"
+      "detail": "1: 523, 2: 326, 4: 186, 8: 242, 16: 344"
     },
     {
       "test": "sweep: speedup at each level",
       "status": "INFO",
-      "detail": "1: 1.0x, 2: 2.19x, 4: 2.15x, 8: 1.54x, 16: 2.24x"
+      "detail": "1: 1.0x, 2: 1.6x, 4: 2.81x, 8: 2.16x, 16: 1.52x"
     },
     {
       "test": "sweep: paired speedup at each level",
       "status": "INFO",
-      "detail": "1: 1.0x, 2: 2.23x, 4: 2.13x, 8: 1.65x, 16: 1.83x"
+      "detail": "1: 1.0x, 2: 1.67x, 4: 2.67x, 8: 1.87x, 16: 1.55x"
     },
     {
       "test": "sweep: spread (slowest repeat / fastest) at each level",
       "status": "INFO",
-      "detail": "1: 1.93, 2: 2.17, 4: 2.03, 8: 2.05, 16: 2.23"
+      "detail": "1: 1.94, 2: 2.1, 4: 2.08, 8: 2.0, 16: 1.66"
     },
     {
       "test": "Ollama stopped: all rows report the connection error",
@@ -215,7 +215,7 @@
     {
       "test": "Ollama stopped: the batch finishes quickly without retries",
       "status": "PASS",
-      "detail": "117 ms"
+      "detail": "22 ms"
     },
     {
       "test": "Ollama stopped: every row made three attempts at both levels",
@@ -225,7 +225,7 @@
     {
       "test": "Ollama stopped: batch time with retries, concurrency 1 / 8 (ms)",
       "status": "INFO",
-      "detail": "12121 / 1525"
+      "detail": "12105 / 1525"
     },
     {
       "test": "Ollama stopped: more concurrency finishes the failing batch sooner",
@@ -238,49 +238,49 @@
       {
         "concurrency": 1,
         "repeat": 0,
-        "wall_ms": 4695.299584000168,
+        "wall_ms": 4789.006582999718,
         "errors": 0
       },
       {
         "concurrency": 4,
         "repeat": 0,
-        "wall_ms": 1197.1602909979993,
+        "wall_ms": 1207.677958009299,
         "errors": 0
       },
       {
         "concurrency": 8,
         "repeat": 0,
-        "wall_ms": 745.5422499988344,
+        "wall_ms": 932.6999579934636,
         "errors": 0
       },
       {
         "concurrency": 16,
         "repeat": 0,
-        "wall_ms": 448.57404199865414,
+        "wall_ms": 470.3846250049537,
         "errors": 0
       },
       {
         "concurrency": 1,
         "repeat": 1,
-        "wall_ms": 4935.822374998679,
+        "wall_ms": 4487.52041599073,
         "errors": 0
       },
       {
         "concurrency": 4,
         "repeat": 1,
-        "wall_ms": 1189.7112500009825,
+        "wall_ms": 1283.874458007631,
         "errors": 0
       },
       {
         "concurrency": 8,
         "repeat": 1,
-        "wall_ms": 714.9894169997424,
+        "wall_ms": 775.9107909951126,
         "errors": 0
       },
       {
         "concurrency": 16,
         "repeat": 1,
-        "wall_ms": 508.4430830029305,
+        "wall_ms": 481.3937089929823,
         "errors": 0
       }
     ],
@@ -288,306 +288,306 @@
       {
         "concurrency": 1,
         "repeat": 0,
-        "wall_ms": 308.16683300145087,
+        "wall_ms": 320.1437499956228,
         "errors": 0
       },
       {
         "concurrency": 2,
         "repeat": 0,
-        "wall_ms": 195.99825000113924,
+        "wall_ms": 306.12850000034086,
         "errors": 0
       },
       {
         "concurrency": 4,
         "repeat": 0,
-        "wall_ms": 353.37162500218255,
+        "wall_ms": 167.00479100109078,
         "errors": 0
       },
       {
         "concurrency": 8,
         "repeat": 0,
-        "wall_ms": 349.50945900345687,
+        "wall_ms": 176.71008300385438,
         "errors": 0
       },
       {
         "concurrency": 16,
         "repeat": 0,
-        "wall_ms": 182.10741599978064,
+        "wall_ms": 243.95529199682642,
         "errors": 0
       },
       {
         "concurrency": 1,
         "repeat": 1,
-        "wall_ms": 481.9614999978512,
+        "wall_ms": 545.4597500065574,
         "errors": 0
       },
       {
         "concurrency": 2,
         "repeat": 1,
-        "wall_ms": 351.16424999796436,
+        "wall_ms": 343.6677090066951,
         "errors": 0
       },
       {
         "concurrency": 4,
         "repeat": 1,
-        "wall_ms": 351.41508300148416,
+        "wall_ms": 178.78550000023097,
         "errors": 0
       },
       {
         "concurrency": 8,
         "repeat": 1,
-        "wall_ms": 170.52516599869705,
+        "wall_ms": 186.96704199828673,
         "errors": 0
       },
       {
         "concurrency": 16,
         "repeat": 1,
-        "wall_ms": 179.86816600023303,
+        "wall_ms": 303.1574589986121,
         "errors": 0
       },
       {
         "concurrency": 1,
         "repeat": 2,
-        "wall_ms": 412.69062500214204,
+        "wall_ms": 534.6880419965601,
         "errors": 0
       },
       {
         "concurrency": 2,
         "repeat": 2,
-        "wall_ms": 306.01183399994625,
+        "wall_ms": 309.3152500077849,
         "errors": 0
       },
       {
         "concurrency": 4,
         "repeat": 2,
-        "wall_ms": 195.830874999956,
+        "wall_ms": 196.57033401017543,
         "errors": 0
       },
       {
         "concurrency": 8,
         "repeat": 2,
-        "wall_ms": 193.6056250015099,
+        "wall_ms": 208.25970800069626,
         "errors": 0
       },
       {
         "concurrency": 16,
         "repeat": 2,
-        "wall_ms": 295.2780419982446,
+        "wall_ms": 332.8587919968413,
         "errors": 0
       },
       {
         "concurrency": 1,
         "repeat": 3,
-        "wall_ms": 396.6915829987556,
+        "wall_ms": 513.5731250047684,
         "errors": 0
       },
       {
         "concurrency": 2,
         "repeat": 3,
-        "wall_ms": 183.71100000149454,
+        "wall_ms": 316.90908399468753,
         "errors": 0
       },
       {
         "concurrency": 4,
         "repeat": 3,
-        "wall_ms": 184.79529100295622,
+        "wall_ms": 334.8228340037167,
         "errors": 0
       },
       {
         "concurrency": 8,
         "repeat": 3,
-        "wall_ms": 301.45400000037625,
+        "wall_ms": 351.20370899676345,
         "errors": 0
       },
       {
         "concurrency": 16,
         "repeat": 3,
-        "wall_ms": 361.3534169999184,
+        "wall_ms": 363.8379170006374,
         "errors": 0
       },
       {
         "concurrency": 1,
         "repeat": 4,
-        "wall_ms": 502.82529200194404,
+        "wall_ms": 621.7920000053709,
         "errors": 0
       },
       {
         "concurrency": 2,
         "repeat": 4,
-        "wall_ms": 182.27425000077346,
+        "wall_ms": 355.0030829937896,
         "errors": 0
       },
       {
         "concurrency": 4,
         "repeat": 4,
-        "wall_ms": 186.7996660002973,
+        "wall_ms": 176.7009580071317,
         "errors": 0
       },
       {
         "concurrency": 8,
         "repeat": 4,
-        "wall_ms": 266.02154099964537,
+        "wall_ms": 180.06070899718907,
         "errors": 0
       },
       {
         "concurrency": 16,
         "repeat": 4,
-        "wall_ms": 166.2311670006602,
+        "wall_ms": 220.14829199179076,
         "errors": 0
       },
       {
         "concurrency": 1,
         "repeat": 5,
-        "wall_ms": 335.11962500051595,
+        "wall_ms": 465.98408299905714,
         "errors": 0
       },
       {
         "concurrency": 2,
         "repeat": 5,
-        "wall_ms": 286.29045800335007,
+        "wall_ms": 351.47695800696965,
         "errors": 0
       },
       {
         "concurrency": 4,
         "repeat": 5,
-        "wall_ms": 307.04304100072477,
+        "wall_ms": 347.2872089914745,
         "errors": 0
       },
       {
         "concurrency": 8,
         "repeat": 5,
-        "wall_ms": 332.3341249997611,
+        "wall_ms": 353.5057080007391,
         "errors": 0
       },
       {
         "concurrency": 16,
         "repeat": 5,
-        "wall_ms": 170.23645799781661,
+        "wall_ms": 358.43333300726954,
         "errors": 0
       },
       {
         "concurrency": 1,
         "repeat": 6,
-        "wall_ms": 370.57150000327965,
+        "wall_ms": 532.8967090026708,
         "errors": 0
       },
       {
         "concurrency": 2,
         "repeat": 6,
-        "wall_ms": 161.7567079993023,
+        "wall_ms": 169.33270898880437,
         "errors": 0
       },
       {
         "concurrency": 4,
         "repeat": 6,
-        "wall_ms": 175.0472499988973,
+        "wall_ms": 180.1888339978177,
         "errors": 0
       },
       {
         "concurrency": 8,
         "repeat": 6,
-        "wall_ms": 257.9909170017345,
+        "wall_ms": 275.47733299434185,
         "errors": 0
       },
       {
         "concurrency": 16,
         "repeat": 6,
-        "wall_ms": 362.6259169977857,
+        "wall_ms": 355.5917499907082,
         "errors": 0
       },
       {
         "concurrency": 1,
         "repeat": 7,
-        "wall_ms": 498.95083400042495,
+        "wall_ms": 501.6781250014901,
         "errors": 0
       },
       {
         "concurrency": 2,
         "repeat": 7,
-        "wall_ms": 185.3361670000595,
+        "wall_ms": 180.15437500434928,
         "errors": 0
       },
       {
         "concurrency": 4,
         "repeat": 7,
-        "wall_ms": 188.62637500205892,
+        "wall_ms": 191.5895419951994,
         "errors": 0
       },
       {
         "concurrency": 8,
         "repeat": 7,
-        "wall_ms": 279.6159589997842,
+        "wall_ms": 280.91920899169054,
         "errors": 0
       },
       {
         "concurrency": 16,
         "repeat": 7,
-        "wall_ms": 355.5002500033879,
+        "wall_ms": 360.52029200072866,
         "errors": 0
       },
       {
         "concurrency": 1,
         "repeat": 8,
-        "wall_ms": 593.2261659982032,
+        "wall_ms": 612.1189999976195,
         "errors": 0
       },
       {
         "concurrency": 2,
         "repeat": 8,
-        "wall_ms": 183.17941600253107,
+        "wall_ms": 341.91395800735336,
         "errors": 0
       },
       {
         "concurrency": 4,
         "repeat": 8,
-        "wall_ms": 185.3646249983285,
+        "wall_ms": 347.25354200054426,
         "errors": 0
       },
       {
         "concurrency": 8,
         "repeat": 8,
-        "wall_ms": 259.5818750014587,
+        "wall_ms": 351.0030000034021,
         "errors": 0
       },
       {
         "concurrency": 16,
         "repeat": 8,
-        "wall_ms": 165.8227080006327,
+        "wall_ms": 365.4028340097284,
         "errors": 0
       },
       {
         "concurrency": 1,
         "repeat": 9,
-        "wall_ms": 389.7893329994986,
+        "wall_ms": 479.8141250066692,
         "errors": 0
       },
       {
         "concurrency": 2,
         "repeat": 9,
-        "wall_ms": 165.7892080002057,
+        "wall_ms": 335.2688750019297,
         "errors": 0
       },
       {
         "concurrency": 4,
         "repeat": 9,
-        "wall_ms": 173.9080000006652,
+        "wall_ms": 168.14058300224133,
         "errors": 0
       },
       {
         "concurrency": 8,
         "repeat": 9,
-        "wall_ms": 257.7861249992566,
+        "wall_ms": 182.30050000420306,
         "errors": 0
       },
       {
         "concurrency": 16,
         "repeat": 9,
-        "wall_ms": 163.23195899894927,
+        "wall_ms": 257.690750004258,
         "errors": 0
       }
     ],
     "stopped_retry_ms": {
-      "concurrency_1": 12121,
+      "concurrency_1": 12105,
       "concurrency_8": 1525
     }
   }
