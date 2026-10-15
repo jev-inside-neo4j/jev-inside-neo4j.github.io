@@ -1,6 +1,6 @@
-# Chapter 5: Keeping the Key Safe
+# Chapter 5: Keeping the key safe
 
-## The Key's Journey
+## The key's journey
 
 Every call to Jev carries a secret: your API key, sent in an `Authorization` header. This chapter is about where that key lives, where it goes and how we made sure it can only go to one place.
 
@@ -10,7 +10,7 @@ The key never appears in a Cypher query, so it never lands in your query log. It
 
 Where it goes is the interesting part.
 
-## Why the Endpoint Must Be Configurable
+## Why the endpoint must be configurable
 
 Until now the function called one address, hard-wired in the code: Jev's. That's the safest possible design for a key, because there's only one place it can go.
 
@@ -24,7 +24,7 @@ The address must be an `http` or `https` URL with a host. Anything else, such as
 
 The moment the address can change, the question of what to do with the key becomes a real one.
 
-## The Flaw
+## The flaw
 
 The obvious design for this option is to read the address from the options, send the request there and attach the key, as before.
 
@@ -32,7 +32,7 @@ We found the problem with that design while testing, before the option shipped. 
 
 A credential should go to the service it belongs to and nowhere else. The code should enforce that rather than rely on every caller getting every address right.
 
-## The Tempting Fix
+## The tempting fix
 
 The first fix that comes to mind is to check the address as text. Send the key only if the URL starts with `https://api.typesafe.ai`. Or only if it contains `api.typesafe.ai`.
 
@@ -47,7 +47,7 @@ The first one starts with exactly the right text. But in a URL, everything befor
 
 A check on the raw text can't tell these apart from the real thing, because the text isn't what the network connects to. The host is.
 
-## The Rule
+## The rule
 
 So the rule works on the parsed address, not the text. The key is sent only if the scheme is `https` and the host is exactly `api.typesafe.ai`:
 
@@ -81,7 +81,7 @@ There are two details here. First, the key is read inside the `if`. For any othe
 
 Second, a missing key is only an error for the real endpoint. A local model needs no key, so a call to one works on a machine where no key has ever been set.
 
-## Seeing It
+## Seeing it
 
 The result now says what happened. A new field in the metadata, `authenticated`, tells you whether the key went out. Here's a normal call to the real endpoint:
 
@@ -156,13 +156,13 @@ The call took 1,511 milliseconds, just over the 500 plus 1,000 milliseconds of w
 
 The statements from this chapter are also in `notebooks/05_key_demos.ipynb`, which runs them one per cell and shows each result.
 
-## Errors That Name the Host
+## Errors that name the host
 
 The error messages now name wherever the call was heading, not just the real host. Before this chapter an I/O failure always said `api.typesafe.ai`. Now it says the configured host and port, so with a local model a refused connection reads "reaching localhost:11434" and tells you at once that Ollama isn't running.
 
 The name is built from the parsed address too and it leaves out anything before an `@`. A URL such as `https://user:secret@evil.com/x` appears in an error as `evil.com`. Error messages end up in query results and logs and a password someone put in an address shouldn't end up there with them.
 
-## Testing the Rule
+## Testing the rule
 
 The rule has to hold for every input, so it's tested from both sides.
 
@@ -187,7 +187,7 @@ The rest of the run was clean as well. With the hosted section switched on, the 
 
 One more detail from that hosted run. The fixture is the midnight cash withdrawal from chapter 4 and this time Jev chose Flag again, with `confidence 0.06, margin 0.06000000000000005`. In chapter 4 the same fixture gave Flag with a margin of 0.04. The transaction is a genuinely ambiguous one and Jev's answers on it aren't guaranteed to be the same from one run to the next.
 
-## What You'd Hit in Production
+## What you'd hit in production
 
 **Point `url` at a service you trust and check what it's for.** The rule protects the Jev key. It doesn't make every endpoint safe to call. A request to a local server or any other address still carries your transaction's data, only without the key.
 
@@ -197,6 +197,6 @@ One more detail from that hosted run. The fixture is the midnight cash withdrawa
 
 **Keys in `neo4j.conf` are still keys in a file.** The JVM option keeps the key out of queries and results, but it sits in the database's configuration. Treat that file like any other place a secret lives.
 
-## Going Further
+## Going further
 
 The function now makes a decision, fails gracefully, has tests at two levels and sends its key to exactly one place. Everything so far works on one transaction at a time. The next chapter takes it to the whole graph: a batch procedure, a bounded thread pool and 500 decisions in one statement.

@@ -1,6 +1,6 @@
-# Chapter 4: Testing Without a Network
+# Chapter 4: Testing without a network
 
-## The Problem with Testing a Network
+## The problem with testing a network
 
 Chapter 3 made a list of promises. The function retries a timeout but not a 422. It waits 500 milliseconds before the second attempt and 1,000 before the third. It reports "after 3 attempts" when it gives up.
 
@@ -8,7 +8,7 @@ We showed the promises that Cypher can trigger on demand, such as a bad option o
 
 So we take the network out of the picture.
 
-## The Seam
+## The seam
 
 We prepared for this in chapters 2 and 3, with two small interfaces.
 
@@ -18,7 +18,7 @@ We prepared for this in chapters 2 and 3, with two small interfaces.
 
 Each interface is a seam: a place where we can replace the real thing with one we control. Neither changes the code under test. The client behaves the same way whether it's talking to Jev or to a stand-in.
 
-## A Scripted Transport
+## A scripted transport
 
 The stand-in is `FakeTransport`. You give it a script of outcomes. Each one is either a response to return or an `IOException` to throw. It plays them back in order and records every request it receives:
 
@@ -74,7 +74,7 @@ void setUp() {
 
 The test runs instantly and `sleeps` holds exactly the waits the function asked for.
 
-## Testing Retries Without Waiting
+## Testing retries without waiting
 
 Here's the promise about a service that keeps failing, as a test:
 
@@ -138,7 +138,7 @@ The other network tests follow the same pattern:
 - A 200 with a body that isn't JSON becomes `malformed_response`.
 - So does a 200 with JSON that has no `answers`.
 
-## Testing What Never Reaches the Network
+## Testing what never reaches the network
 
 Some of the most important tests check that nothing was sent. The transport records every request, so "no call was made" is a plain assertion:
 
@@ -172,7 +172,7 @@ Tests run: 44, Failures: 0, Errors: 0, Skipped: 0
 
 The client's 19 tests, including every retry and backoff case, took under a tenth of a second together, because nothing waits. A failing test would have stopped the build before it produced a JAR. That's a useful property: the JAR you copy into `plugins` is one that passed its tests.
 
-## What the Tests Don't Prove
+## What the tests don't prove
 
 A test against a fake proves one thing: the function does what we told it to do when the service behaves the way we told the fake to behave. It doesn't prove that Jev behaves that way.
 
@@ -180,7 +180,7 @@ Suppose Jev changed how it reports an error, the response gained a new field or 
 
 That's why there's a second layer. It runs the real function in the real database, through Cypher, against the real service.
 
-## The Live Notebook
+## The live notebook
 
 The notebook is `notebooks/04_decide_tests.ipynb` in the chapter's folder. It connects to your database with the Python driver and runs `jev.decide` calls the way a query of yours would. Each test prints its status and, at the end, everything is saved to a file, `results_decide.json`, so a run can be kept and compared.
 
@@ -197,7 +197,7 @@ The first group of tests needs no key and makes no calls. It checks that the fun
 
 The second group is the optional one. With the flag on, it makes five real calls to Jev on one transaction and checks four things: no call returned an error, each took exactly one attempt, the choice is one we offered and the `confidence` equals the margin between the two probabilities. It allows a gap of 0.02 in that last check, because Jev rounds its probabilities to two decimals. The last two checks look at the first call and the transaction is a fixture with four of the eight properties, not one of the 500 nodes.
 
-## Reading the Results
+## Reading the results
 
 Here's the saved summary from a run with the flag on:
 
@@ -225,7 +225,7 @@ The real-Jev check on `confidence` has a detail worth reading: `confidence 0.04,
 
 The measurement is the wall time per call: a minimum of 217 milliseconds, a median of 235 and a maximum of 550. The first of the five calls was the slowest. This number includes the trip over Bolt and the query planning, so it's always a little more than the `latency_ms` the function reports about itself.
 
-## What You'd Hit in Production
+## What you'd hit in production
 
 **A green suite can hide a bad fake.** The unit tests check the function against our model of the service. The notebook is the check on that model. When the service changes, the notebook is the layer that notices.
 
@@ -235,6 +235,6 @@ The measurement is the wall time per call: a minimum of 217 milliseconds, a medi
 
 **Run the notebook against the build you installed.** The notebook tests whatever JAR is in the `plugins` folder. If you forget to swap in the new one and restart, it tests the old function.
 
-## Going Further
+## Going further
 
 We now have a function that makes a decision, fails gracefully and has tests at two levels. There's one problem left and it's about the API key. The function sends it in a header and the moment we let the endpoint be configured, the address decides where the key goes. In the next chapter we look at how that can go wrong and the rule that stops it.

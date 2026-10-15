@@ -1,6 +1,6 @@
-# Chapter 7: Running It Locally
+# Chapter 7: Running it locally
 
-## Why Run Locally
+## Why run locally
 
 Every decision so far has gone out over the internet. For some graphs that's fine. For others it isn't: the data may not be allowed to leave the building, the calls may add up to a cost you'd rather avoid or the machine may simply be offline.
 
@@ -8,7 +8,7 @@ A local model answers those objections. The data stay on your computer, no key i
 
 We use Ollama to serve the model. It exposes the same request format that Jev's API speaks, so the function we've built needs no new code. Everything in this chapter uses options we already have: `model` from chapter 2, `url` from chapter 5 and `concurrency` from chapter 6.
 
-## Same Function, New Address
+## Same function, new address
 
 Pull the model once:
 
@@ -66,7 +66,7 @@ Look at `authenticated`. It's false, which is the rule from chapter 5 at work. T
 
 One new unit test checks that a response from a local server, with extra fields in it, is accepted. That brings the suite to 68 tests.
 
-## Same Shape, Different Meaning
+## Same shape, different meaning
 
 The result looks the same, but one field means something else. In chapter 2 we saw that Jev's `confidence` is the margin between the two probabilities. The local server's `confidence` is one minus the normalized entropy of the probabilities, a different measure.
 
@@ -89,7 +89,7 @@ The local decisions we store later in this chapter carry a `margin` property for
 
 There's one smaller difference. A `score` question comes back from the local model as an integer, such as `1`. The notebook records the type as `int`. If you do arithmetic on these scores alongside decimal ones, use `toFloat()` first.
 
-## Cold and Warm
+## Cold and warm
 
 The first call to a local model is slow, because the server has to load the model into memory. Later calls find it already loaded. The notebook measures both by asking the server to unload the model, making one call and then ten more.
 
@@ -97,7 +97,7 @@ The cold call took 881 milliseconds. The ten warm calls took between 21 and 31 m
 
 So a warm local call, measured this way, is far faster than a hosted call, which took around 235 milliseconds in chapter 4. But keep reading, because a warm call on a repeated request turns out not to be the whole story.
 
-## Failures Are Still Data
+## Failures are still data
 
 Everything from chapter 3 carries over, because the local server goes through the same `JevClient`. Two cases show it.
 
@@ -111,13 +111,13 @@ The notebook confirms the call used one attempt. Run the same request as a batch
 
 If the server isn't running at all, the connection is refused. The error names the host and the port, `localhost:11434`, so you can tell at once that it's the local server that's missing and not the network. It's an `io` error, so it's retried with the usual backoff before the function gives up.
 
-## Repeatable, in Steps
+## Repeatable, in steps
 
 Run the same call three times and the hosted service may answer with slightly different probabilities each time, as we saw in chapters 5 and 6. The local model doesn't. In the notebook, three identical calls gave exactly one distinct result and a row from `jev.decideAll` was identical to the same state sent through `jev.decide`.
 
 Repeatable doesn't mean fine-grained. Across all 500 local decisions in the full run below, `p_flag` took only 15 distinct values. Ten of them covered 429 of the 500 decisions and the three most common, 0.2451, 0.2227 and 0.3208, covered 193. Every one of the 15 is the logistic function of a multiple of 0.125. For example, 0.2689 is 1/(1+e^1), 0.2227 is 1/(1+e^1.25) and 0.5 is 1/(1+e^0). We don't know why the model answers in steps like these and we haven't tried to find out. What matters in practice is that many transactions get exactly the same probability, so there's less room to rank them by how sure the model was.
 
-## The Full Run, Locally
+## The full run, locally
 
 Now the same 500 transactions. The statement is the one from chapter 6, with two changes: the options point at the local server and the answers are stored as `LocalDecision` nodes, linked by `HAS_LOCAL_DECISION`. That leaves the hosted `Decision` nodes untouched, so the two sets can be compared:
 
@@ -165,7 +165,7 @@ Five hundred local decisions, all stored, in about 64 seconds at a concurrency o
 
 The function's own latency averaged 504 milliseconds per call locally and 223 hosted. The local calls ranged from 83 to 1,488 milliseconds, with a median of 451.
 
-## Hosted Against Local
+## Hosted against local
 
 The queries now have two sets of decisions to compare. First, what the local model decided, set against the hidden label:
 
@@ -212,7 +212,7 @@ The confidence scales show the earlier point in numbers. Averaged over the 500 t
 
 The statements from this chapter are also in `notebooks/07_run_local_500.ipynb`, which runs them one per cell and shows each result. The last one deletes the local decisions and is switched off by default.
 
-## Concurrency Locally
+## Concurrency locally
 
 In chapter 6 the pool gave a large speedup, because the hosted service could answer many requests at once. Across the hosted sweeps we ran, the speedup ranged from about 5.4 to 7.0 times at 8 workers and from about 7.4 to 10.8 times at 16. A model on one laptop is a different matter, since all the calls share the same hardware.
 
@@ -234,7 +234,7 @@ We don't know why. It could be the model server, the machine or the way the call
 
 There's a bigger caveat on the sweep itself. It sends the same 40 requests again and again, with only four properties in each state. At 4 workers the median batch of 40 took 186 milliseconds, about 4.7 milliseconds per item. The full run sent 500 different transactions, each with eight properties and took about 129 milliseconds per item at the same concurrency. That's about 27 times slower per item. We haven't tested whether repetition, the size of the state or something else explains it. The sweep shows how the speedup changes with concurrency. It doesn't tell you what a real run costs and for that you need to run the real thing, as we did above.
 
-## What You'd Hit in Production
+## What you'd hit in production
 
 **Check the model is pulled before a batch.** A missing model fails every row with the same 404. It fails fast and clearly, but you still lose the run.
 
@@ -248,6 +248,6 @@ There's a bigger caveat on the sweep itself. It sends the same 40 requests again
 
 **Local doesn't mean unmanaged.** The model server runs on your machine, uses its memory and can be stopped or updated by you. If it isn't running, calls fail with an `io` error that names it.
 
-## Where We've Got To
+## Where we've got to
 
 We started with a graph that couldn't answer a question about judgment. We now have a function that makes one decision, a procedure that makes thousands, errors that come back as data, tests that need no network, a key that can only go to one place and a choice of where the model runs. Each lesson came from something that went wrong or something we measured and each is in the code and the numbers in this book.

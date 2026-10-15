@@ -1,6 +1,6 @@
-# Chapter 1: Why Decisions Belong in the Database
+# Chapter 1: Why decisions belong in the database
 
-## The Problem
+## The problem
 
 A graph is good at questions about structure: who is connected to whom, how far apart two nodes are, which paths loop back on themselves. It isn't good at questions of judgment. Is this transaction suspicious? Does this support ticket sound urgent? Is this review about shipping or about the product? Questions like these have no Cypher pattern, because the answer isn't in the shape of the graph. It's in the meaning of the properties.
 
@@ -19,7 +19,7 @@ It works, but it has costs that show up every time:
 
 The last cost matters most. If a decision were just another step in a Cypher statement, we could filter on it, group by it and traverse from it, like any other property.
 
-## The Idea
+## The idea
 
 We make the decision a function. You call it from Cypher the way you'd call any built-in function and it returns an answer:
 
@@ -41,7 +41,7 @@ A second piece, `jev.decideAll`, is a procedure that takes many states and retur
 
 The service behind the function is Jev, which takes a state and a set of questions and returns an answer with probabilities. The function speaks a simple HTTP API, so the same call can also go to a local model server. We use that in chapter 7.
 
-## The Use Case
+## The use case
 
 Our running example is a small one. We have a set of `Transaction` nodes and for each one we want to answer a single question: should this transaction be flagged for review or passed through?
 
@@ -49,7 +49,7 @@ The function returns a decision with probabilities attached. We store each decis
 
 We build this example up one piece at a time. Each chapter adds a part of the code and uses only what's been built so far, so there's something working from chapter 2 onward and nothing the reader has to take on trust.
 
-## The Data
+## The data
 
 The dataset is 500 synthetic transactions generated with a fixed random seed, so everyone works with the same ones. Each `Transaction` node has eight properties that the function gets to see:
 
@@ -86,7 +86,7 @@ The graph model for the example is:
 
 Chapter 6 creates the `Decision` nodes, when we store the results of a full run. Chapter 7 adds a second set, the `LocalDecision` nodes, from a local model. They carry a `margin` property, which puts the two sources' confidence on one scale.
 
-## A Preview of the Result
+## A preview of the result
 
 Here's where we're heading. There's nothing to run yet. This is the call we'll make in chapter 2, on one transaction:
 
@@ -152,7 +152,7 @@ LIMIT 5
 
 This lists the five flagged transactions the decision was least sure about, which is where a person should look first. The property names are the ones chapter 6 creates.
 
-## The Companion Repository
+## The companion repository
 
 Everything in this book lives in one repository: the text of each chapter, the code and the data. You can find it at:
 
@@ -171,7 +171,7 @@ Each chapter that has code gets a folder in `code` with the same name as the cha
 
 Cloning the repository, building a chapter and running the notebooks are covered in "Setting Up" at the end of this chapter. A table of every file you can run is in "What's in the Repository", right after it.
 
-## What the Book Builds
+## What the book builds
 
 Each chapter takes one lesson from the build and adds the code that goes with it:
 
@@ -182,7 +182,7 @@ Each chapter takes one lesson from the build and adds the code that goes with it
 - **Chapter 6, Many at Once.** The batch procedure, a bounded thread pool and what the timings show.
 - **Chapter 7, Running It Locally.** The same function against a local model and what changes.
 
-## What You'll Need
+## What you'll need
 
 - **Neo4j Desktop.** The function is a plugin, so it runs in a local database. Download from [Neo4j for Desktop](https://neo4j.com/download/).
 - **A Java development kit and Maven.** We build the plugin ourselves.
@@ -193,7 +193,7 @@ Each chapter takes one lesson from the build and adds the code that goes with it
 
 The versions of every tool and library are pinned in the code files that come with the book.
 
-## Setting Up
+## Setting up
 
 This section takes you from nothing to a working function. Chapter 2 walks through the same steps again with the reasons behind them, so here we keep to the commands. Where a step runs Cypher, run the statements one at a time. A whole script at once only tells you that it succeeded and most of the statements are there for the result they show.
 
@@ -288,7 +288,7 @@ Leave Ollama running while you work through chapter 7.
 - **A chapter 7 call returns an `io` error naming `localhost:11434`.** Ollama isn't running.
 - **A notebook can't connect.** The environment variables were set after Jupyter started. Stop Jupyter, set them and start it again from the same terminal.
 
-## What's in the Repository
+## What's in the repository
 
 Every file you run is in a chapter's folder under `code`, apart from the data file. The `.cypher` files hold the statements the chapter shows. The notebooks run the same statements one per cell and show each result. Run the statements one at a time, in order. The test notebooks check the function against the real services and save what they found in a JSON file next to them.
 

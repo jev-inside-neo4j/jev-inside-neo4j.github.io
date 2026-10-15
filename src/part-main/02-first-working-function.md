@@ -1,6 +1,6 @@
-# Chapter 2: A First Working Function
+# Chapter 2: A first working function
 
-## What Is It?
+## What is it?
 
 Neo4j lets you add your own functions to Cypher. You write a Java class, mark a method with `@UserFunction`, package it as a JAR and drop it in the database's `plugins` folder. After a restart, your function sits next to the built-in ones and you call it the same way.
 
@@ -26,7 +26,7 @@ The types at the boundary follow a fixed mapping:
 
 A parameter declared as `Object` accepts any of these, which is how our `state` argument can be either text or a map.
 
-## The Project
+## The project
 
 The project is small: five Java files, a pom, a Cypher script and a notebook. You'll find them in the `code` folder of the book's repository:
 
@@ -86,7 +86,7 @@ public Map<String, Object> decide(
 
 Keeping the logic out of this class matters. Anything that needs a running Neo4j to test is slow to test. Anything in `JevClient` doesn't and chapter 4 takes advantage of that.
 
-## The Type Rules
+## The type rules
 
 The obvious way to build the result is to return the answers exactly as Jackson parsed them. That doesn't work and the reason is in the mapping table above.
 
@@ -124,7 +124,7 @@ if (value instanceof Double || value instanceof Float) {
 
 The `path` in that message is the location of the bad value, such as `$.amount`, so the error says where to look. A map whose keys aren't text is rejected the same way and so is a type we don't recognize.
 
-## The Request
+## The request
 
 The API takes three things: a model name, a state and a set of questions.
 
@@ -203,7 +203,7 @@ Build the request, send it, check the status, pull out the `answers` and normali
 
 The only setting this version reads from the `options` argument is `model`. If you don't give one, it uses `jev-latest`.
 
-## The Data Go In
+## The data go in
 
 Before the first call we need something to decide about. The repository you cloned in chapter 1 includes a file, `code/data/transactions.csv`, with 500 transactions. Copy that file into the import folder of your Neo4j Desktop database. Desktop has an option to open a database's folders and the import folder is one of them.
 
@@ -232,7 +232,7 @@ A CSV file is all text, so every value has to be converted. The conversions aren
 
 The `MERGE` on the constraint means you can run this twice and still have 500 nodes.
 
-## The First Call
+## The first call
 
 Install the JAR and tell Neo4j about it:
 
@@ -298,7 +298,7 @@ That's a decision made inside the database. The query took a node, handed its pr
 
 The same statements are also in `notebooks/02_load_and_call.ipynb`, which runs them one per cell and shows each result.
 
-## What You'd Hit in Production
+## What you'd hit in production
 
 **The JAR needs a restart.** Neo4j loads plugins when it starts. Copy in a new JAR and nothing changes until you restart the database. Two JARs that both define `jev.decide` will clash. Every chapter's JAR has the same name, so copying a new one over the old one replaces it and only one is ever installed.
 
@@ -310,6 +310,6 @@ The same statements are also in `notebooks/02_load_and_call.ipynb`, which runs t
 
 **A typo is silently ignored.** Pass `{modle: 'x'}` as the `options` argument and the function won't complain. It simply uses the default model. The same chapter fixes that too.
 
-## Going Further
+## Going further
 
 We have a function that makes one decision and it works as long as everything goes right. In practice a network call fails in many ways: the key's missing, the service is slow, the response isn't what we expected. Right now every one of those stops the query. In the next chapter we change what the function does when something goes wrong and the answer is the idea that shapes the rest of the book: a failure is just another value.

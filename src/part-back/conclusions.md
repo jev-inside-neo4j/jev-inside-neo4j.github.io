@@ -1,6 +1,6 @@
 # Conclusions
 
-## What We Built
+## What we built
 
 We started with a graph that could answer questions about structure and none about judgment. We ended with this:
 
@@ -20,7 +20,7 @@ Each chapter contributed one lesson:
 | 6. Many at Once | Concurrency has to be bounded, ordered and measured. |
 | 7. Running It Locally | Swapping the model is cheap, but it changes the judgment and not just the speed. |
 
-## What the Lessons Share
+## What the lessons share
 
 Look back over the six and a pattern shows. Each one moves a decision out of a place where it would be made by accident and into a place where it's made on purpose.
 
@@ -28,7 +28,7 @@ The type rules decide what crosses the boundary instead of letting a stray `Inte
 
 None of these is clever. Each is a small piece of structure put where a mistake would otherwise be easy and most were added because we'd hit the problem or seen it coming while testing.
 
-## What the Numbers Did and Didn't Show
+## What the numbers did and didn't show
 
 We measured a fair amount and it's worth being plain about what it supports.
 
@@ -44,7 +44,7 @@ We measured a fair amount and it's worth being plain about what it supports.
 
 **The data are synthetic.** Each transaction was generated from a scenario with a latent probability of fraud and the label was drawn from it, so some of the fraud in the data was never certain. The results say how the code and the models behave on this data. They aren't evidence about real fraud.
 
-## What We Left Out
+## What we left out
 
 A few things the build doesn't do, which you'd want to think about before relying on it:
 
@@ -55,7 +55,7 @@ A few things the build doesn't do, which you'd want to think about before relyin
 - **It needs Neo4j Desktop.** Custom plugins aren't available on Aura.
 - **We tried one prompt and two models.** The hosted service and `tev1:0.8b` through Ollama, with the setup in chapter 7. Better instructions or a different model might do much better and we didn't look.
 
-## Where to Go Next
+## Where to go next
 
 Because the pieces are small, there are several ways to take this further without rewriting any of it.
 
@@ -67,6 +67,6 @@ Because the pieces are small, there are several ways to take this further withou
 
 **Keep the habits.** Even if you never use this function, the habits in these chapters apply to any custom code that calls out of Neo4j: return failures as values, put a seam where the outside world meets your code, decide in code where a credential can go and measure the real workload.
 
-## A Last Word
+## A last word
 
 Putting a model call inside a database turned out to be less about the model than about everything around it: the types, the failures, the key, the tests and the numbers. The decision is one line of Cypher. What makes that line safe to run over a whole graph is the rest of the book.

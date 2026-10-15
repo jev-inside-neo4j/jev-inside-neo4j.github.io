@@ -1,6 +1,6 @@
-# Chapter 3: Failures as Data
+# Chapter 3: Failures as data
 
-## The Problem with Throwing
+## The problem with throwing
 
 The function from chapter 2 works as long as everything goes right. Here's what happens when something doesn't. Take four transactions, one of which doesn't exist and ask for a decision on each:
 
@@ -22,7 +22,7 @@ The third row has no transaction behind it, so there's no real state to decide a
 
 The cause is a design choice. In Cypher, an error in a function stops the statement. That's right for a built-in like `date`, where text that isn't a date is a bug in your query. It's wrong for a call to a remote service, where failure is a normal event.
 
-## The Rule
+## The rule
 
 From this chapter on, `jev.decide` never throws. Every failure comes back in the result:
 
@@ -38,7 +38,7 @@ The map has the same three parts as before. When the call works, `answers` is fi
 
 That turns failure into data and data are what Cypher is good at. You can count the failures, group them, filter them out or run only the failed ones again.
 
-## The Error Prefixes
+## The error prefixes
 
 A message is only useful to a query if the query can tell one kind from another. So every `error_message` starts with a category, followed by a colon:
 
@@ -62,7 +62,7 @@ WITH split(result.error_message, ':')[0] AS category
 RETURN category, count(*) AS n
 ```
 
-## Validation Before the Network
+## Validation before the network
 
 The cheapest failure is the one that never leaves the database. Before any request is sent, the function checks three things.
 
@@ -150,11 +150,11 @@ RETURN jev.decide(
 
 All three share two things. `latency_ms` is 0 and `attempts` is 0, because nothing touched the network. A validation failure costs nothing and is instant, which matters when the query runs over thousands of nodes.
 
-## The Key
+## The key
 
 The function needs a key to call Jev. If it can't find one, in the environment variable or the JVM property, it returns a `no_api_key` error that says where to put it. The key is checked after validation, so a request that's wrong tells you so even before you've set a key up.
 
-## Retries and Backoff
+## Retries and backoff
 
 Some failures are worth trying again. A timeout may be a busy moment. A 429 means slow down. A 503 is the service having a bad second. Others are not. A 400 or 422 means the request is wrong and sending the same request again gets the same answer.
 
@@ -188,7 +188,7 @@ The real function passes `Thread::sleep`. The reason for the interface is the sa
 
 When the retries run out, the message says how many attempts were made. A single attempt reads "(after 1 attempt)" and more reads "(after 3 attempts)". The `attempts` field in the metadata carries the same number, so a query can find the calls that needed help.
 
-## A Safety Net
+## A safety net
 
 Validation and the HTTP handling cover the failures we can predict. The rest is covered by a last catch around the whole call. Any unexpected exception, which in practice means a bug in our own code, becomes an `internal` error with the exception's class and message. We haven't triggered one in the notebooks, because it takes a bug to produce it.
 
@@ -196,11 +196,11 @@ This is the part that makes "never throws" true instead of hopeful. Without it, 
 
 There's one exception to carrying on and it's deliberate. If the thread is interrupted, the function sets the interrupt flag again and returns an `interrupted` error. The interrupt is the database asking the work to stop, for instance when someone cancels a query. Swallowing it would make a long call impossible to cancel. We haven't cancelled a query in the notebooks to see this error, so it describes what the code does.
 
-## Errors That Say Where
+## Errors that say where
 
 Two small habits make the errors easier to act on. First, they name the host. A timeout reads "no response from api.typesafe.ai within the configured limits" and an I/O failure names the host it was reaching, so you don't have to guess which service was involved. These message texts come from the code and the text after each prefix can change. Second, an HTTP error includes the start of the response body, cut to 300 characters, because the service's own explanation is often the quickest route to the fix.
 
-## Seeing It Work
+## Seeing it work
 
 Here's the four-transaction query again, with a `CASE` that makes the missing-node case explicit by passing null as the state. The function rejects a null state as a validation error:
 
@@ -246,7 +246,7 @@ All three validation errors above are failures we can trigger on demand. The net
 
 The statements from this chapter are also in `notebooks/03_failure_demos.ipynb`, which runs them one per cell and shows each result.
 
-## What You'd Hit in Production
+## What you'd hit in production
 
 **The error is a value, so check it.** A query that reads `result.answers.decision.choice` gets null for a failed call, which looks the same as a missing property. If it matters, test `error_message IS NULL` first, or keep both fields.
 
@@ -256,6 +256,6 @@ The statements from this chapter are also in `notebooks/03_failure_demos.ipynb`,
 
 **Validation isn't perfect.** It catches the shapes we know about. The API remains the authority and anything it rejects that we let through comes back as an `http_4xx` with its own explanation.
 
-## Going Further
+## Going further
 
 We now have a function that fails gracefully and a set of claims about how: it retries these errors, doesn't retry those, backs off by doubling and names each category. So far we've only shown the failures we can cause from Cypher. In the next chapter we test all of it properly, without a network and then add live notebooks as a second layer that checks the real thing.

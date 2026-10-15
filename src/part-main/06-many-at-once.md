@@ -1,6 +1,6 @@
-# Chapter 6: Many at Once
+# Chapter 6: Many at once
 
-## One at a Time
+## One at a time
 
 Everything so far has been one decision per call. That's fine for a single transaction, but our graph has 500 and a real one could have millions.
 
@@ -8,7 +8,7 @@ The problem is in how a function call works. `jev.decide` sends a request and wa
 
 Most of that time is waiting. The database sits idle while Jev thinks. If we could have several requests in flight at once, the waiting would overlap. This chapter adds the piece that does it.
 
-## A Procedure, Not a Function
+## A procedure, not a function
 
 A function returns one value. What we want to return is a stream of rows, one per input, so the new piece is a procedure, `jev.decideAll`. Its shape is:
 
@@ -29,7 +29,7 @@ Each row it returns has the same `answers`, `error_message` and `metadata` as a 
 
 Like `jev.decide`, the procedure is a thin wrapper. The class Neo4j sees, `JevDecideAll`, hands everything to `BatchRunner`, which holds the logic. `BatchRunner` takes the same `JevClient` we've been building, so every guarantee from the earlier chapters still applies to each row: validation first, retries with backoff, failures as data and the key rule.
 
-## A Bounded Pool
+## A bounded pool
 
 `BatchRunner` runs the calls on a pool of worker threads. The number of threads is the `concurrency` option, from 1 to 16 and it defaults to 4:
 
@@ -48,7 +48,7 @@ The threads are daemons and have names, `jev-decide-1`, `jev-decide-2` and so on
 
 One rule matters more than the others: the workers receive only plain values. They get a state, the questions and the options. They never touch the Neo4j transaction. The transaction belongs to the thread that called the procedure and handing it to other threads is a way to produce failures that are very hard to diagnose.
 
-## Order and Failures
+## Order and failures
 
 The calls finish in any order, but the rows come back in the order the items were given. `BatchRunner` submits every item to the pool and then reads the results back by position:
 
@@ -71,7 +71,7 @@ A failing row doesn't stop the others. Each row carries its own `error_message`,
 
 If the thread that called the procedure is interrupted, for instance when someone cancels the query, the pool is shut down at once and the unfinished rows come back as `interrupted:` errors. The thread's interrupt flag is set again afterwards, so Neo4j can see the cancellation.
 
-## Testing the Batch
+## Testing the batch
 
 The 12 new unit tests in `BatchRunnerTest` use the fake transport from chapter 4. They check the ordering, the bound on concurrency, the default of four, the per-row failures, the limits and the interrupt. All 67 tests in the project pass and the batch tests took about half a second, longer than the rest because they run real threads.
 
@@ -90,7 +90,7 @@ The notebook, `06_decideall_tests.ipynb`, checks the same things against the rea
 
 With the hosted section switched on, the notebook recorded 20 passes and 2 measurements. The measurements come in the timing section below.
 
-## The Full Run
+## The full run
 
 Now the whole graph. This statement picks every transaction without a decision, builds the list of items, calls `jev.decideAll` with a concurrency of 8 and stores each answer as a `Decision` node:
 
@@ -155,7 +155,7 @@ The `Decision` node settles the properties we left open in chapter 1:
 | `attempts` | How many attempts it needed |
 | `model` | Which model answered |
 
-## What the Decisions Say
+## What the decisions say
 
 With the decisions stored, the questions from chapter 1 are queries. First, how the 500 split:
 
@@ -243,7 +243,7 @@ RETURN count(*) AS decisions,
 
 With a confidence of 0.8 as the line, 246 of the 500 decisions, or 49.2%, were confident.
 
-## The Same Run Four Times
+## The same run four times
 
 We ran the whole batch several times. Each run's decisions were deleted before the next and everything above comes from the last one. Here are the last four side by side:
 
@@ -269,7 +269,7 @@ The overall picture is stable and the details move. A transaction at the edge ca
 
 That has a practical consequence. If you store decisions, treat them as a snapshot from one run of a service that can answer slightly differently the next time. The `model` and `latency_ms` properties on each `Decision` help you tell runs apart later.
 
-## What the Timings Show
+## What the timings show
 
 The notebook's hosted sweep times a batch of 20 items at four levels of concurrency, twice each. The batches are taken in rotation so a slow stretch on the network doesn't land on one level.
 
@@ -286,7 +286,7 @@ The results at 8 and 16 need a note. Twenty items on 16 workers still need two r
 
 Back to the full run: the sweep's roughly 7 times at a concurrency of 8 is below the almost 10 times we worked out for the full run, which is another sign that call times move between runs. The same statement took 15,076 milliseconds in an earlier run, close to the 14,172 above. We didn't time the full run enough to call it a benchmark, so treat it as a measurement and not a promise.
 
-## What You'd Hit in Production
+## What you'd hit in production
 
 **More concurrency only helps if the service can answer in parallel.** A hosted API usually can, as the sweep shows. Chapter 7 puts a local model behind the same procedure and the picture is different.
 
@@ -298,6 +298,6 @@ Back to the full run: the sweep's roughly 7 times at a concurrency of 8 is below
 
 **Decisions are data you now own.** The stored `Decision` nodes don't change when the service does. If you want fresh ones, delete the old `Decision` nodes first, as we did between runs.
 
-## Going Further
+## Going further
 
 We've gone from one decision to a stored, queryable judgment on every transaction, with timings that show the pool earning its place. In the last chapter we swap the service behind the same function. The hosted model gives way to a small one running on your own machine and we'll see what stays the same, what changes and what that does to the numbers.
