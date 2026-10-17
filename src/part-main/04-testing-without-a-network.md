@@ -1,4 +1,4 @@
-# Chapter 4: Testing without a network
+# Chapter 4: Testing Without a Network
 
 ## The problem with testing a network
 

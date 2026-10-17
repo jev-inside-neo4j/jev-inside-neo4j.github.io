@@ -1,4 +1,4 @@
-# Chapter 1: Why decisions belong in the database
+# Chapter 1: Why Decisions Belong in the Database
 
 ## The problem
 

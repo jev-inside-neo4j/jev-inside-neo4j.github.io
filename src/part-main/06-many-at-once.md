@@ -1,4 +1,4 @@
-# Chapter 6: Many at once
+# Chapter 6: Many at Once
 
 ## One at a time
 

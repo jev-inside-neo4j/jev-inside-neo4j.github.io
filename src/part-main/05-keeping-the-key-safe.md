@@ -1,4 +1,4 @@
-# Chapter 5: Keeping the key safe
+# Chapter 5: Keeping the Key Safe
 
 ## The key's journey
 

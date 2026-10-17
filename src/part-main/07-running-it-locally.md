@@ -1,4 +1,4 @@
-# Chapter 7: Running it locally
+# Chapter 7: Running It Locally
 
 ## Why run locally
 

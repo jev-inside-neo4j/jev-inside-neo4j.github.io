@@ -1,4 +1,4 @@
-# Chapter 2: A first working function
+# Chapter 2: A First Working Function
 
 ## What is it?
 

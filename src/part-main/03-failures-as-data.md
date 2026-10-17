@@ -1,4 +1,4 @@
-# Chapter 3: Failures as data
+# Chapter 3: Failures as Data
 
 ## The problem with throwing
 
